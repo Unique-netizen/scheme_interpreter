@@ -35,8 +35,17 @@ Expr Number::parse(Assoc &env) {
     return Expr(new Fixnum(n));
 }
 
-Expr RationalSyntax::parse(Assoc &env) {
+Expr RationalSyntax::parse(Assoc &env) {//may need: simplify; check 0. 
     //TODO: complete the rational parser
+    if (denominator == 0) {
+        throw RuntimeError("Denominator cannot be zero");
+    }
+    int g = gcd(numerator, denominator);
+    if(g != 1){
+        numerator /= g;
+        denominator /= g;
+    }
+    return Expr(new RationalNum(numerator, denominator));
 }
 
 Expr SymbolSyntax::parse(Assoc &env) {
@@ -124,5 +133,5 @@ Expr List::parse(Assoc &env) {
 
     //default: use Apply to be an expression
     //TODO: TO COMPLETE THE PARSER LOGIC
-}
-}
+}//else
+}//k=list
