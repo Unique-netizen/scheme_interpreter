@@ -113,7 +113,6 @@ Expr List::parse(Assoc &env) {
                 if(p_Fixnum->n == 0){
                     throw RuntimeError("Division by zero");
                 }
-                }
                 return Expr(new Div(parameters[0], parameters[1])); 
             } else {
                 throw RuntimeError("Wrong number of arguments for /");//???
