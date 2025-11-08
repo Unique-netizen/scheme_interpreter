@@ -28,7 +28,7 @@ extern std::map<std::string, ExprType> reserved_words;
  * @brief Default parse method (should be overridden by subclasses)
  */
 Expr Syntax::parse(Assoc &env) {
-    throw RuntimeError("Unimplemented parse method");
+    throw RuntimeError("Unimplemented parse method");//Then why declare a parse in Syntax?
 }
 
 Expr Number::parse(Assoc &env) {
@@ -36,14 +36,9 @@ Expr Number::parse(Assoc &env) {
 }
 
 Expr RationalSyntax::parse(Assoc &env) {//may need: simplify; check 0. 
-    //TODO: complete the rational parser
+    //complete the rational parser
     if (denominator == 0) {
         throw RuntimeError("Denominator cannot be zero");
-    }
-    int g = gcd(numerator, denominator);
-    if(g != 1){
-        numerator /= g;
-        denominator /= g;
     }
     return Expr(new RationalNum(numerator, denominator));
 }
@@ -72,36 +67,62 @@ Expr List::parse(Assoc &env) {
     //TODO: check if the first element is a symbol
     //If not, use Apply function to package to a closure;
     //If so, find whether it's a variable or a keyword;
-    SymbolSyntax *id = dynamic_cast<SymbolSyntax*>(stxs[0].get());
-    if (id == nullptr) {
+    SymbolSyntax *id = dynamic_cast<SymbolSyntax*>(stxs[0].get());//check whether is a pointer to SymbolSyntax
+    if (id == nullptr) {//dynamic cast failed
         //TODO: TO COMPLETE THE LOGIC
     }else{
     string op = id->s;
-    if (find(op, env).get() != nullptr) {
+    if (find(op, env).get() != nullptr) {//check whether it's a variable?//return?
         //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
     }
-    if (primitives.count(op) != 0) {
+    if (primitives.count(op) != 0) {//whether in primitive map
         vector<Expr> parameters;
         //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
-        
+        for (int i = 1; i < stxs.size(); i++){//what does modulo need?
+            if(auto p_Number = dynamic_cast<Number*>(stxs[i].get())){
+                parameters.push_back(Expr(new Fixnum(p_Number->n)));
+            }else{
+                throw RuntimeError("Parameter is not a number");
+            }
+        }
         ExprType op_type = primitives[op];
         if (op_type == E_PLUS) {
             if (parameters.size() == 2) {
                 return Expr(new Plus(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for +");
+                throw RuntimeError("Wrong number of arguments for +");//???
             }
         } else if (op_type == E_MINUS) {
             //TODO: TO COMPLETE THE LOGIC
+            if (parameters.size() == 2) {
+                return Expr(new Minus(parameters[0], parameters[1])); 
+            } else {
+                throw RuntimeError("Wrong number of arguments for -");//???
+            }
         } else if (op_type == E_MUL) {
             //TODO: TO COMPLETE THE LOGIC
+            if (parameters.size() == 2) {
+                return Expr(new Mult(parameters[0], parameters[1])); 
+            } else {
+                throw RuntimeError("Wrong number of arguments for *");//???
+            }
         }  else if (op_type == E_DIV) {
             //TODO: TO COMPLETE THE LOGIC
+            if (parameters.size() == 2) {
+                auto p_Fixnum = dynamic_cast<Fixnum*>(parameters[1].get());
+                if(p_Fixnum->n == 0){
+                    throw RuntimeError("Division by zero");
+                }
+                }
+                return Expr(new Div(parameters[0], parameters[1])); 
+            } else {
+                throw RuntimeError("Wrong number of arguments for /");//???
+            }
         } else if (op_type == E_MODULO) {
             if (parameters.size() != 2) {
                 throw RuntimeError("Wrong number of arguments for modulo");
             }
-            return Expr(new Modulo(parameters[0], parameters[1]));
+            return Expr(new Modulo(parameters[0], parameters[1]));//???what is expt???
         } else if (op_type == E_LIST) {
             return Expr(new ListFunc(parameters));
         } else if (op_type == E_LT) {
