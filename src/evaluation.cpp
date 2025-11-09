@@ -104,7 +104,7 @@ Value Var::eval(Assoc &e) { // evaluation of variable
 }
 
 Value Plus::evalRator(const Value &rand1, const Value &rand2) { // +
-    //TODO: To complete the addition logic
+    //To complete the addition logic
     //put dynamic_cast inside if, then will be executed only twice
     if (rand1->v_type == V_INT && rand2->v_type == V_INT){
         int n1 = dynamic_cast<Integer*>(rand1.get())->n;
@@ -134,7 +134,7 @@ Value Plus::evalRator(const Value &rand1, const Value &rand2) { // +
 }
 
 Value Minus::evalRator(const Value &rand1, const Value &rand2) { // -
-    //TODO: To complete the substraction logic
+    //To complete the substraction logic
     if (rand1->v_type == V_INT && rand2->v_type == V_INT){
         int n1 = dynamic_cast<Integer*>(rand1.get())->n;
         int n2 = dynamic_cast<Integer*>(rand2.get())->n;
@@ -163,7 +163,7 @@ Value Minus::evalRator(const Value &rand1, const Value &rand2) { // -
 }
 
 Value Mult::evalRator(const Value &rand1, const Value &rand2) { // *
-    //TODO: To complete the Multiplication logic
+    //To complete the Multiplication logic
     if (rand1->v_type == V_INT && rand2->v_type == V_INT){
         int n1 = dynamic_cast<Integer*>(rand1.get())->n;
         int n2 = dynamic_cast<Integer*>(rand2.get())->n;
@@ -192,7 +192,7 @@ Value Mult::evalRator(const Value &rand1, const Value &rand2) { // *
 }
 
 Value Div::evalRator(const Value &rand1, const Value &rand2) { // /
-    //TODO: To complete the dicision logic
+    //To complete the division logic
     if (rand1->v_type == V_INT && rand2->v_type == V_INT){
         int num = dynamic_cast<Integer*>(rand1.get())->n;
         int den = dynamic_cast<Integer*>(rand2.get())->n;
@@ -332,7 +332,7 @@ int compareNumericValues(const Value &v1, const Value &v2) {
 }
 
 Value Less::evalRator(const Value &rand1, const Value &rand2) { // <
-    //TODO: To complete the less logic
+    //To complete the less logic
     int compare = compareNumericValues(rand1, rand2);
     if (compare == -1) {
         return BooleanV(true);
@@ -343,7 +343,7 @@ Value Less::evalRator(const Value &rand1, const Value &rand2) { // <
 }
 
 Value LessEq::evalRator(const Value &rand1, const Value &rand2) { // <=
-    //TODO: To complete the lesseq logic
+    //To complete the lesseq logic
     int compare = compareNumericValues(rand1, rand2);
     if (compare == -1 || compare == 0) {
         return BooleanV(true);
@@ -354,7 +354,7 @@ Value LessEq::evalRator(const Value &rand1, const Value &rand2) { // <=
 }
 
 Value Equal::evalRator(const Value &rand1, const Value &rand2) { // =
-    //TODO: To complete the equal logic
+    //To complete the equal logic
     int compare = compareNumericValues(rand1, rand2);
     if (compare == 0) {
         return BooleanV(true);
@@ -365,7 +365,7 @@ Value Equal::evalRator(const Value &rand1, const Value &rand2) { // =
 }
 
 Value GreaterEq::evalRator(const Value &rand1, const Value &rand2) { // >=
-    //TODO: To complete the greatereq logic
+    //To complete the greatereq logic
     int compare = compareNumericValues(rand1, rand2);
     if (compare == 1 || compare == 0) {
         return BooleanV(true);
@@ -376,7 +376,7 @@ Value GreaterEq::evalRator(const Value &rand1, const Value &rand2) { // >=
 }
 
 Value Greater::evalRator(const Value &rand1, const Value &rand2) { // >
-    //TODO: To complete the greater logic
+    //To complete the greater logic
     int compare = compareNumericValues(rand1, rand2);
     if (compare == 1) {
         return BooleanV(true);
@@ -408,6 +408,7 @@ Value GreaterVar::evalRator(const std::vector<Value> &args) { // > with multiple
 
 Value Cons::evalRator(const Value &rand1, const Value &rand2) { // cons
     //TODO: To complete the cons logic
+    return PairV(rand1, rand2);
 }
 
 Value ListFunc::evalRator(const std::vector<Value> &args) { // list function
@@ -420,10 +421,18 @@ Value IsList::evalRator(const Value &rand) { // list?
 
 Value Car::evalRator(const Value &rand) { // car
     //TODO: To complete the car logic
+    if (auto p_pair = dynamic_cast<Pair*>(rand.get())) {
+        return p_pair->car;
+    }
+    throw RuntimeError("Wrong typename");
 }
 
 Value Cdr::evalRator(const Value &rand) { // cdr
     //TODO: To complete the cdr logic
+    if (auto p_pair = dynamic_cast<Pair*>(rand.get())) {
+        return p_pair->cdr;
+    }
+    throw RuntimeError("Wrong typename");
 }
 
 Value SetCar::evalRator(const Value &rand1, const Value &rand2) { // set-car!

@@ -28,7 +28,7 @@ extern std::map<std::string, ExprType> reserved_words;
  * @brief Default parse method (should be overridden by subclasses)
  */
 Expr Syntax::parse(Assoc &env) {
-    throw RuntimeError("Unimplemented parse method");//Then why declare a parse in Syntax?
+    throw RuntimeError("Unimplemented parse method");
 }
 
 Expr Number::parse(Assoc &env) {
@@ -64,7 +64,7 @@ Expr List::parse(Assoc &env) {
         return Expr(new Quote(Syntax(new List())));
     }
 
-    //TODO: check if the first element is a symbol
+    //TODO: check if the first element is a symbol//what if a list full of numbers?
     //If not, use Apply function to package to a closure;
     //If so, find whether it's a variable or a keyword;
     SymbolSyntax *id = dynamic_cast<SymbolSyntax*>(stxs[0].get());//check whether is a pointer to SymbolSyntax
@@ -75,21 +75,13 @@ Expr List::parse(Assoc &env) {
     if (find(op, env).get() != nullptr) {//check whether it's a variable?//return?
         //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
     }
-    if (primitives.count(op) != 0) {//whether in primitive map
+    if (primitives.count(op) != 0) {//whether in primitive map//here we need: expt;cons, car, ...; and so many...
         vector<Expr> parameters;
         //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
-        for (int i = 1; i < stxs.size(); i++){
-            if(auto p_Number = dynamic_cast<Number*>(stxs[i].get())){
-                parameters.push_back(Expr(new Fixnum(p_Number->n)));
-            }else if(auto p_Rational = dynamic_cast<RationalSyntax*>(stxs[i].get())){
-                parameters.push_back(Expr(new RationalNum(p_Rational->numerator, p_Rational->denominator)));
-            }else if(auto p_List = dynamic_cast<List*>(stxs[i].get())){
-                parameters.push_back(p_List->parse(env));
-            }else{
-                throw RuntimeError("Parameter is not an integer, a rational number, or a list");
-            }
+        for (int i = 1; i < stxs.size(); i++){//call the corresponding parse?
+            parameters.push_back(stxs[i]->parse(env));
         }
-        ExprType op_type = primitives[op];//where is expt???
+        ExprType op_type = primitives[op];
         if (op_type == E_PLUS) {
             if (parameters.size() == 2) {
                 return Expr(new Plus(parameters[0], parameters[1])); 
@@ -129,9 +121,33 @@ Expr List::parse(Assoc &env) {
                 throw RuntimeError("Wrong number of arguments for modulo");
             }
             return Expr(new Modulo(parameters[0], parameters[1]));
-        } else if (op_type == E_LIST) {
+        } else if (op_type == E_EXPT) {
+            if (parameters.size() == 2){
+                return Expr(new Expt(parameters[0], parameters[1])); 
+            } else {
+                throw RuntimeError("Wrong number of arguments for expt");
+            }
+        }else if (op_type == E_LIST) {
             return Expr(new ListFunc(parameters));//what???
-        } else if (op_type == E_LT) {
+        } else if (op_type == E_CONS) {
+            if (parameters.size() == 2) {
+                return Expr(new Cons(parameters[0], parameters[1]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for cons");
+            }
+        }else if (op_type == E_CAR) {
+            if (parameters.size() == 1) {
+                return Expr(new Car(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for car");
+            }
+        }else if (op_type == E_CDR) {
+            if (parameters.size() == 1) {
+                return Expr(new Cdr(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for cdr");
+            }
+        }else if (op_type == E_LT) {
             //TO COMPLETE THE LOGIC
             if (parameters.size() == 2) {
                 return Expr(new Less(parameters[0], parameters[1])); 

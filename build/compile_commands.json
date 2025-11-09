@@ -1,0 +1,50 @@
+[
+{
+  "directory": "/root/SchemeInterpreter/build",
+  "command": "/usr/bin/c++   -std=gnu++11 -g -o CMakeFiles/code.dir/src/main.cpp.o -c /root/SchemeInterpreter/src/main.cpp",
+  "file": "/root/SchemeInterpreter/src/main.cpp",
+  "output": "CMakeFiles/code.dir/src/main.cpp.o"
+},
+{
+  "directory": "/root/SchemeInterpreter/build",
+  "command": "/usr/bin/c++   -std=gnu++11 -g -o CMakeFiles/code.dir/src/syntax.cpp.o -c /root/SchemeInterpreter/src/syntax.cpp",
+  "file": "/root/SchemeInterpreter/src/syntax.cpp",
+  "output": "CMakeFiles/code.dir/src/syntax.cpp.o"
+},
+{
+  "directory": "/root/SchemeInterpreter/build",
+  "command": "/usr/bin/c++   -std=gnu++11 -g -o CMakeFiles/code.dir/src/RE.cpp.o -c /root/SchemeInterpreter/src/RE.cpp",
+  "file": "/root/SchemeInterpreter/src/RE.cpp",
+  "output": "CMakeFiles/code.dir/src/RE.cpp.o"
+},
+{
+  "directory": "/root/SchemeInterpreter/build",
+  "command": "/usr/bin/c++   -std=gnu++11 -g -o CMakeFiles/code.dir/src/parser.cpp.o -c /root/SchemeInterpreter/src/parser.cpp",
+  "file": "/root/SchemeInterpreter/src/parser.cpp",
+  "output": "CMakeFiles/code.dir/src/parser.cpp.o"
+},
+{
+  "directory": "/root/SchemeInterpreter/build",
+  "command": "/usr/bin/c++   -std=gnu++11 -g -o CMakeFiles/code.dir/src/expr.cpp.o -c /root/SchemeInterpreter/src/expr.cpp",
+  "file": "/root/SchemeInterpreter/src/expr.cpp",
+  "output": "CMakeFiles/code.dir/src/expr.cpp.o"
+},
+{
+  "directory": "/root/SchemeInterpreter/build",
+  "command": "/usr/bin/c++   -std=gnu++11 -g -o CMakeFiles/code.dir/src/value.cpp.o -c /root/SchemeInterpreter/src/value.cpp",
+  "file": "/root/SchemeInterpreter/src/value.cpp",
+  "output": "CMakeFiles/code.dir/src/value.cpp.o"
+},
+{
+  "directory": "/root/SchemeInterpreter/build",
+  "command": "/usr/bin/c++   -std=gnu++11 -g -o CMakeFiles/code.dir/src/evaluation.cpp.o -c /root/SchemeInterpreter/src/evaluation.cpp",
+  "file": "/root/SchemeInterpreter/src/evaluation.cpp",
+  "output": "CMakeFiles/code.dir/src/evaluation.cpp.o"
+},
+{
+  "directory": "/root/SchemeInterpreter/build",
+  "command": "/usr/bin/c++   -std=gnu++11 -g -o CMakeFiles/code.dir/src/Def.cpp.o -c /root/SchemeInterpreter/src/Def.cpp",
+  "file": "/root/SchemeInterpreter/src/Def.cpp",
+  "output": "CMakeFiles/code.dir/src/Def.cpp.o"
+}
+]
