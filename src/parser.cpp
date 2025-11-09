@@ -89,7 +89,7 @@ Expr List::parse(Assoc &env) {
                 throw RuntimeError("Parameter is not an integer, a rational number, or a list");
             }
         }
-        ExprType op_type = primitives[op];//what is expt???
+        ExprType op_type = primitives[op];//where is expt???
         if (op_type == E_PLUS) {
             if (parameters.size() == 2) {
                 return Expr(new Plus(parameters[0], parameters[1])); 
@@ -130,17 +130,42 @@ Expr List::parse(Assoc &env) {
             }
             return Expr(new Modulo(parameters[0], parameters[1]));
         } else if (op_type == E_LIST) {
-            return Expr(new ListFunc(parameters));
+            return Expr(new ListFunc(parameters));//what???
         } else if (op_type == E_LT) {
-            //TODO: TO COMPLETE THE LOGIC
+            //TO COMPLETE THE LOGIC
+            if (parameters.size() == 2) {
+                return Expr(new Less(parameters[0], parameters[1])); 
+            } else {
+                throw RuntimeError("Wrong number of arguments for <");
+            }
         } else if (op_type == E_LE) {
-            //TODO: TO COMPLETE THE LOGIC
+            //TO COMPLETE THE LOGIC
+            if (parameters.size() == 2) {
+                return Expr(new LessEq(parameters[0], parameters[1])); 
+            } else {
+                throw RuntimeError("Wrong number of arguments for <=");
+            }
         } else if (op_type == E_EQ) {
-            //TODO: TO COMPLETE THE LOGIC
+            //TO COMPLETE THE LOGIC
+            if (parameters.size() == 2) {
+                return Expr(new Equal(parameters[0], parameters[1])); 
+            } else {
+                throw RuntimeError("Wrong number of arguments for =");
+            }
         } else if (op_type == E_GE) {
-            //TODO: TO COMPLETE THE LOGIC
+            //TO COMPLETE THE LOGIC
+            if (parameters.size() == 2) {
+                return Expr(new GreaterEq(parameters[0], parameters[1])); 
+            } else {
+                throw RuntimeError("Wrong number of arguments for >=");
+            }
         } else if (op_type == E_GT) {
-            //TODO: TO COMPLETE THE LOGIC
+            //TO COMPLETE THE LOGIC
+            if (parameters.size() == 2) {
+                return Expr(new Greater(parameters[0], parameters[1])); 
+            } else {
+                throw RuntimeError("Wrong number of arguments for >");
+            }
         } else if (op_type == E_AND) {
             return Expr(new AndVar(parameters));
         } else if (op_type == E_OR) {

@@ -333,26 +333,56 @@ int compareNumericValues(const Value &v1, const Value &v2) {
 
 Value Less::evalRator(const Value &rand1, const Value &rand2) { // <
     //TODO: To complete the less logic
+    int compare = compareNumericValues(rand1, rand2);
+    if (compare == -1) {
+        return BooleanV(true);
+    } else {
+        return BooleanV(false);
+    }
     throw(RuntimeError("Wrong typename"));
 }
 
 Value LessEq::evalRator(const Value &rand1, const Value &rand2) { // <=
     //TODO: To complete the lesseq logic
+    int compare = compareNumericValues(rand1, rand2);
+    if (compare == -1 || compare == 0) {
+        return BooleanV(true);
+    } else {
+        return BooleanV(false);
+    }
     throw(RuntimeError("Wrong typename"));
 }
 
 Value Equal::evalRator(const Value &rand1, const Value &rand2) { // =
     //TODO: To complete the equal logic
+    int compare = compareNumericValues(rand1, rand2);
+    if (compare == 0) {
+        return BooleanV(true);
+    } else {
+        return BooleanV(false);
+    }
     throw(RuntimeError("Wrong typename"));
 }
 
 Value GreaterEq::evalRator(const Value &rand1, const Value &rand2) { // >=
     //TODO: To complete the greatereq logic
+    int compare = compareNumericValues(rand1, rand2);
+    if (compare == 1 || compare == 0) {
+        return BooleanV(true);
+    } else {
+        return BooleanV(false);
+    }
     throw(RuntimeError("Wrong typename"));
 }
 
 Value Greater::evalRator(const Value &rand1, const Value &rand2) { // >
     //TODO: To complete the greater logic
+    int compare = compareNumericValues(rand1, rand2);
+    if (compare == 1) {
+        return BooleanV(true);
+    } else {
+        return BooleanV(false);
+    }
     throw(RuntimeError("Wrong typename"));
 }
 
