@@ -78,50 +78,57 @@ Expr List::parse(Assoc &env) {
     if (primitives.count(op) != 0) {//whether in primitive map
         vector<Expr> parameters;
         //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
-        for (int i = 1; i < stxs.size(); i++){//what does modulo need?
+        for (int i = 1; i < stxs.size(); i++){
             if(auto p_Number = dynamic_cast<Number*>(stxs[i].get())){
                 parameters.push_back(Expr(new Fixnum(p_Number->n)));
+            }else if(auto p_Rational = dynamic_cast<RationalSyntax*>(stxs[i].get())){
+                parameters.push_back(Expr(new RationalNum(p_Rational->numerator, p_Rational->denominator)));
+            }else if(auto p_List = dynamic_cast<List*>(stxs[i].get())){
+                parameters.push_back(p_List->parse(env));
             }else{
-                throw RuntimeError("Parameter is not a number");
+                throw RuntimeError("Parameter is not an integer, a rational number, or a list");
             }
         }
-        ExprType op_type = primitives[op];
+        ExprType op_type = primitives[op];//what is expt???
         if (op_type == E_PLUS) {
             if (parameters.size() == 2) {
                 return Expr(new Plus(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for +");//???
+                throw RuntimeError("Wrong number of arguments for +");
             }
         } else if (op_type == E_MINUS) {
             //TODO: TO COMPLETE THE LOGIC
             if (parameters.size() == 2) {
                 return Expr(new Minus(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for -");//???
+                throw RuntimeError("Wrong number of arguments for -");
             }
         } else if (op_type == E_MUL) {
             //TODO: TO COMPLETE THE LOGIC
             if (parameters.size() == 2) {
                 return Expr(new Mult(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for *");//???
+                throw RuntimeError("Wrong number of arguments for *");
             }
         }  else if (op_type == E_DIV) {
             //TODO: TO COMPLETE THE LOGIC
             if (parameters.size() == 2) {
                 auto p_Fixnum = dynamic_cast<Fixnum*>(parameters[1].get());
-                if(p_Fixnum->n == 0){
+                auto p_RationalNum = dynamic_cast<RationalNum*>(parameters[1].get());
+                if((p_Fixnum) && (p_Fixnum->n == 0)){
+                    throw RuntimeError("Division by zero");
+                }else if((p_RationalNum) && (p_RationalNum->numerator == 0)){
                     throw RuntimeError("Division by zero");
                 }
                 return Expr(new Div(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for /");//???
+                throw RuntimeError("Wrong number of arguments for /");
             }
         } else if (op_type == E_MODULO) {
             if (parameters.size() != 2) {
                 throw RuntimeError("Wrong number of arguments for modulo");
             }
-            return Expr(new Modulo(parameters[0], parameters[1]));//???what is expt???
+            return Expr(new Modulo(parameters[0], parameters[1]));
         } else if (op_type == E_LIST) {
             return Expr(new ListFunc(parameters));
         } else if (op_type == E_LT) {

@@ -105,21 +105,133 @@ Value Var::eval(Assoc &e) { // evaluation of variable
 
 Value Plus::evalRator(const Value &rand1, const Value &rand2) { // +
     //TODO: To complete the addition logic
+    //put dynamic_cast inside if, then will be executed only twice
+    if (rand1->v_type == V_INT && rand2->v_type == V_INT){
+        int n1 = dynamic_cast<Integer*>(rand1.get())->n;
+        int n2 = dynamic_cast<Integer*>(rand2.get())->n;
+        int result = n1 + n2;
+        return IntegerV(result);
+    }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_RATIONAL){
+        auto p1= dynamic_cast<Rational*>(rand1.get());
+        auto p2 = dynamic_cast<Rational*>(rand2.get());
+        int num = p1->numerator * p2->denominator + p2->numerator * p1->denominator;
+        int den = p1->denominator * p2->denominator;
+        return RationalV(num, den);
+    }else if (rand1->v_type == V_INT && rand2->v_type == V_RATIONAL){
+        auto p1 = dynamic_cast<Integer*>(rand1.get());
+        auto p2 = dynamic_cast<Rational*>(rand2.get());
+        int num = p1->n * p2->denominator + p2->numerator;
+        int den = p2->denominator;
+        return RationalV(num, den);
+    }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_INT){
+        auto p1 = dynamic_cast<Rational*>(rand1.get());
+        auto p2 = dynamic_cast<Integer*>(rand2.get());
+        int num = p1->numerator + p2->n * p1->denominator;
+        int den = p1->denominator;
+        return RationalV(num, den);
+    }
     throw(RuntimeError("Wrong typename"));
 }
 
 Value Minus::evalRator(const Value &rand1, const Value &rand2) { // -
     //TODO: To complete the substraction logic
+    if (rand1->v_type == V_INT && rand2->v_type == V_INT){
+        int n1 = dynamic_cast<Integer*>(rand1.get())->n;
+        int n2 = dynamic_cast<Integer*>(rand2.get())->n;
+        int result = n1 - n2;
+        return IntegerV(result);
+    }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_RATIONAL){
+        auto p1 = dynamic_cast<Rational*>(rand1.get());
+        auto p2 = dynamic_cast<Rational*>(rand2.get());
+        int num = p1->numerator * p2->denominator - p2->numerator * p1->denominator;
+        int den = p1->denominator * p2->denominator;
+        return RationalV(num, den);
+    }else if (rand1->v_type == V_INT && rand2->v_type == V_RATIONAL){
+        auto p1 = dynamic_cast<Integer*>(rand1.get());
+        auto p2 = dynamic_cast<Rational*>(rand2.get());
+        int num = p1->n * p2->denominator - p2->numerator;
+        int den = p2->denominator;
+        return RationalV(num, den);
+    }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_INT){
+        auto p1 = dynamic_cast<Rational*>(rand1.get());
+        auto p2 = dynamic_cast<Integer*>(rand2.get());
+        int num = p1->numerator - p2->n * p1->denominator;
+        int den = p1->denominator;
+        return RationalV(num, den);
+    }
     throw(RuntimeError("Wrong typename"));
 }
 
 Value Mult::evalRator(const Value &rand1, const Value &rand2) { // *
     //TODO: To complete the Multiplication logic
+    if (rand1->v_type == V_INT && rand2->v_type == V_INT){
+        int n1 = dynamic_cast<Integer*>(rand1.get())->n;
+        int n2 = dynamic_cast<Integer*>(rand2.get())->n;
+        int result = n1 * n2;
+        return IntegerV(result);
+    }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_RATIONAL){
+        auto p1 = dynamic_cast<Rational*>(rand1.get());
+        auto p2 = dynamic_cast<Rational*>(rand2.get());
+        int num = p1->numerator * p2->numerator;
+        int den = p1->denominator * p2->denominator;
+        return RationalV(num, den);
+    }else if (rand1->v_type == V_INT && rand2->v_type == V_RATIONAL){
+        auto p1 = dynamic_cast<Integer*>(rand1.get());
+        auto p2 = dynamic_cast<Rational*>(rand2.get());
+        int num = p1->n * p2->numerator;
+        int den = p2->denominator;
+        return RationalV(num, den);
+    }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_INT){
+        auto p1 = dynamic_cast<Rational*>(rand1.get());
+        auto p2 = dynamic_cast<Integer*>(rand2.get());
+        int num = p1->numerator * p2->n;
+        int den = p1->denominator;
+        return RationalV(num, den);
+    }
     throw(RuntimeError("Wrong typename"));
 }
 
 Value Div::evalRator(const Value &rand1, const Value &rand2) { // /
     //TODO: To complete the dicision logic
+    if (rand1->v_type == V_INT && rand2->v_type == V_INT){
+        int num = dynamic_cast<Integer*>(rand1.get())->n;
+        int den = dynamic_cast<Integer*>(rand2.get())->n;
+        if (num % den == 0){
+            return IntegerV(num / den);
+        }else{
+            return RationalV(num, den);
+        }
+    }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_RATIONAL){
+        auto p1 = dynamic_cast<Rational*>(rand1.get());
+        auto p2 = dynamic_cast<Rational*>(rand2.get());
+        int num = p1->numerator * p2->denominator;
+        int den = p1->denominator * p2->numerator;
+        if (num % den == 0){
+            return IntegerV(num / den);
+        }else{
+            return RationalV(num, den);
+        }
+    }else if (rand1->v_type == V_INT && rand2->v_type == V_RATIONAL){
+        auto p1 = dynamic_cast<Integer*>(rand1.get());
+        auto p2 = dynamic_cast<Rational*>(rand2.get());
+        int num = p1->n * p2->denominator;
+        int den = p2->numerator;
+        if (num % den == 0){
+            return IntegerV(num / den);
+        }else{
+            return RationalV(num, den);
+        }
+    }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_INT){
+        auto p1 = dynamic_cast<Rational*>(rand1.get());
+        auto p2 = dynamic_cast<Integer*>(rand2.get());
+        int num = p1->numerator;
+        int den = p1->denominator * p2->n;
+        if (num % den == 0){
+            return IntegerV(num / den);
+        }else{
+            return RationalV(num, den);
+        }
+    }
     throw(RuntimeError("Wrong typename"));
 }
 
