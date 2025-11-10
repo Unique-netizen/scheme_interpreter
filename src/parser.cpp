@@ -194,6 +194,14 @@ Expr List::parse(Assoc &env) {
     if (reserved_words.count(op) != 0) {
     	switch (reserved_words[op]) {
 			//TODO: TO COMPLETE THE reserve_words PARSER LOGIC
+            case E_QUOTE:{
+                if (stxs.size() == 2){
+                    return Expr(new Quote(stxs[1]));
+                } else {
+                    throw RuntimeError("Wrong number of arguments for quote");
+                }
+            }
+
         	default:
             	throw RuntimeError("Unknown reserved word: " + op);
     	}

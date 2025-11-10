@@ -499,6 +499,26 @@ Value Begin::eval(Assoc &e) {
 
 Value Quote::eval(Assoc& e) {
     //TODO: To complete the quote logic
+    if (auto p = dynamic_cast<Number*>(s.get())) {
+        return IntegerV(p->n);
+    } else if (auto p = dynamic_cast<RationalSyntax*>(s.get())) {
+        return RationalV(p->numerator, p->denominator);
+    } else if (auto p = dynamic_cast<TrueSyntax*>(s.get())) {
+        return BooleanV(true);
+    } else if (auto p = dynamic_cast<FalseSyntax*>(s.get())) {
+        return BooleanV(false);
+    } else if (auto p = dynamic_cast<SymbolSyntax*>(s.get())) {
+        return SymbolV(p->s);
+    } else if (auto p = dynamic_cast<StringSyntax*>(s.get())) {
+        return StringV(p->s);
+    } else if (auto p = dynamic_cast<List*>(s.get())) {
+        Value pointer = NullV();
+        for (int i = (p->stxs).size() - 1; i >= 0; i--){
+            pointer = PairV(Quote((p->stxs)[i]).eval(e), pointer);
+        }
+        return pointer;
+    }
+    throw RuntimeError("Wrong typename");
 }
 
 Value AndVar::eval(Assoc &e) { // and with short-circuit evaluation
