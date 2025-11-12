@@ -506,7 +506,12 @@ Value IsString::evalRator(const Value &rand) { // string?
 }
 
 Value Begin::eval(Assoc &e) {
-    //TODO: To complete the begin logic
+    //To complete the begin logic
+    Value result = VoidV();
+    for (int i = 0; i < es.size(); i++) {
+        result = es[i]->eval(e);
+    }
+    return result;
 }
 
 Value Quote::eval(Assoc& e) {
@@ -571,7 +576,13 @@ Value Not::evalRator(const Value &rand) { // not
 }
 
 Value If::eval(Assoc &e) {
-    //TODO: To complete the if logic
+    //To complete the if logic
+    auto p = cond->eval(e);
+    if (p->v_type == V_BOOL && !(dynamic_cast<Boolean*>(p.get())->b)){
+        return alter->eval(e);
+    }else{
+        return conseq->eval(e);
+    }
 }
 
 Value Cond::eval(Assoc &env) {

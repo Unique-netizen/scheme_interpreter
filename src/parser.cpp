@@ -202,14 +202,18 @@ Expr List::parse(Assoc &env) {
                 }
             }
             case E_BEGIN:{
-
+                std::vector<Expr> es;
+                for (int i = 1; i < stxs.size(); i++){
+                    es.push_back(stxs[i]->parse(env));
+                }
+                return Expr(new Begin(es));
             }
             case E_IF:{
                 if (stxs.size() == 4){
-                    Expr test = stxs[1]->parse(env);
+                    Expr cond = stxs[1]->parse(env);
                     Expr conseq = stxs[2]->parse(env);
-                    Expr alt = stxs[3]->parse(env);
-                    return Expr(new If(test, conseq, alt));
+                    Expr alter = stxs[3]->parse(env);
+                    return Expr(new If(cond, conseq, alter));
                 } else {
                     throw RuntimeError("Wrong number of arguments for if");
                 }
