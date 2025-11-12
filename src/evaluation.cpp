@@ -196,6 +196,9 @@ Value Div::evalRator(const Value &rand1, const Value &rand2) { // /
     if (rand1->v_type == V_INT && rand2->v_type == V_INT){
         int num = dynamic_cast<Integer*>(rand1.get())->n;
         int den = dynamic_cast<Integer*>(rand2.get())->n;
+        if (den == 0){
+            throw(RuntimeError("Division by zero"));
+        }
         if (num % den == 0){
             return IntegerV(num / den);
         }else{
@@ -204,6 +207,9 @@ Value Div::evalRator(const Value &rand1, const Value &rand2) { // /
     }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_RATIONAL){
         auto p1 = dynamic_cast<Rational*>(rand1.get());
         auto p2 = dynamic_cast<Rational*>(rand2.get());
+        if (p2->numerator == 0){
+            throw(RuntimeError("Division by zero"));
+        }
         int num = p1->numerator * p2->denominator;
         int den = p1->denominator * p2->numerator;
         if (num % den == 0){
@@ -214,6 +220,9 @@ Value Div::evalRator(const Value &rand1, const Value &rand2) { // /
     }else if (rand1->v_type == V_INT && rand2->v_type == V_RATIONAL){
         auto p1 = dynamic_cast<Integer*>(rand1.get());
         auto p2 = dynamic_cast<Rational*>(rand2.get());
+        if (p2->numerator == 0){
+            throw(RuntimeError("Division by zero"));
+        }
         int num = p1->n * p2->denominator;
         int den = p2->numerator;
         if (num % den == 0){
@@ -224,6 +233,9 @@ Value Div::evalRator(const Value &rand1, const Value &rand2) { // /
     }else if (rand1->v_type == V_RATIONAL && rand2->v_type == V_INT){
         auto p1 = dynamic_cast<Rational*>(rand1.get());
         auto p2 = dynamic_cast<Integer*>(rand2.get());
+        if (p2->n == 0){
+            throw(RuntimeError("Division by zero"));
+        }
         int num = p1->numerator;
         int den = p1->denominator * p2->n;
         if (num % den == 0){
@@ -407,7 +419,7 @@ Value GreaterVar::evalRator(const std::vector<Value> &args) { // > with multiple
 }
 
 Value Cons::evalRator(const Value &rand1, const Value &rand2) { // cons
-    //TODO: To complete the cons logic
+    //To complete the cons logic
     return PairV(rand1, rand2);
 }
 
@@ -420,7 +432,7 @@ Value IsList::evalRator(const Value &rand) { // list?
 }
 
 Value Car::evalRator(const Value &rand) { // car
-    //TODO: To complete the car logic
+    //To complete the car logic
     if (auto p_pair = dynamic_cast<Pair*>(rand.get())) {
         return p_pair->car;
     }
@@ -428,7 +440,7 @@ Value Car::evalRator(const Value &rand) { // car
 }
 
 Value Cdr::evalRator(const Value &rand) { // cdr
-    //TODO: To complete the cdr logic
+    //To complete the cdr logic
     if (auto p_pair = dynamic_cast<Pair*>(rand.get())) {
         return p_pair->cdr;
     }
@@ -498,7 +510,7 @@ Value Begin::eval(Assoc &e) {
 }
 
 Value Quote::eval(Assoc& e) {
-    //TODO: To complete the quote logic
+    //To complete the quote logic
     if (auto p = dynamic_cast<Number*>(s.get())) {
         return IntegerV(p->n);
     } else if (auto p = dynamic_cast<RationalSyntax*>(s.get())) {
@@ -522,15 +534,40 @@ Value Quote::eval(Assoc& e) {
 }
 
 Value AndVar::eval(Assoc &e) { // and with short-circuit evaluation
-    //TODO: To complete the and logic
+    //To complete the and logic
+    Value result = BooleanV(true);
+    for (int i = 0; i < rands.size(); i++) {
+        result = rands[i]->eval(e);
+        if (result->v_type == V_BOOL) {
+            if (!(dynamic_cast<Boolean*>(result.get())->b)) {
+                return BooleanV(false);
+            }
+        }
+    }
+    return result;
 }
 
 Value OrVar::eval(Assoc &e) { // or with short-circuit evaluation
-    //TODO: To complete the or logic
+    //To complete the or logic
+    Value result = BooleanV(false);
+    for (int i = 0; i < rands.size(); i++) {
+        result = rands[i]->eval(e);
+        if (result->v_type == V_BOOL) {
+            if (!(dynamic_cast<Boolean*>(result.get())->b)) {
+                continue;
+            }
+        }
+        return result;
+    }
+    return result;
 }
 
 Value Not::evalRator(const Value &rand) { // not
-    //TODO: To complete the not logic
+    //To complete the not logic
+    if (rand->v_type == V_BOOL) {
+        if (!(dynamic_cast<Boolean*>(rand.get())->b)) return BooleanV(true);
+    }
+    return BooleanV(false);
 }
 
 Value If::eval(Assoc &e) {

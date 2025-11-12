@@ -35,7 +35,7 @@ Expr Number::parse(Assoc &env) {
     return Expr(new Fixnum(n));
 }
 
-Expr RationalSyntax::parse(Assoc &env) {//may need: simplify; check 0. 
+Expr RationalSyntax::parse(Assoc &env) {//may need: simplify(in constructor); check 0. 
     //complete the rational parser
     if (denominator == 0) {
         throw RuntimeError("Denominator cannot be zero");
@@ -79,8 +79,9 @@ Expr List::parse(Assoc &env) {
         vector<Expr> parameters;
         //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
         for (int i = 1; i < stxs.size(); i++){//call the corresponding parse?
-            parameters.push_back(stxs[i]->parse(env));
-        }
+            parameters.push_back(stxs[i]->parse(env));//for and or, shouldn't throw, do parse shouldn't check
+        }//so rational should check and division shouldn't check before evaluation?
+        //other types of illegal?let's see OJ
         ExprType op_type = primitives[op];
         if (op_type == E_PLUS) {
             if (parameters.size() == 2) {
@@ -105,13 +106,6 @@ Expr List::parse(Assoc &env) {
         }  else if (op_type == E_DIV) {
             //TODO: TO COMPLETE THE LOGIC
             if (parameters.size() == 2) {
-                auto p_Fixnum = dynamic_cast<Fixnum*>(parameters[1].get());
-                auto p_RationalNum = dynamic_cast<RationalNum*>(parameters[1].get());
-                if((p_Fixnum) && (p_Fixnum->n == 0)){
-                    throw RuntimeError("Division by zero");
-                }else if((p_RationalNum) && (p_RationalNum->numerator == 0)){
-                    throw RuntimeError("Division by zero");
-                }
                 return Expr(new Div(parameters[0], parameters[1])); 
             } else {
                 throw RuntimeError("Wrong number of arguments for /");
@@ -182,7 +176,13 @@ Expr List::parse(Assoc &env) {
             } else {
                 throw RuntimeError("Wrong number of arguments for >");
             }
-        } else if (op_type == E_AND) {
+        } else if (op_type == E_NOT){
+            if (parameters.size() == 1) {
+                return Expr(new Not(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for not");
+            }
+        }else if (op_type == E_AND) {
             return Expr(new AndVar(parameters));
         } else if (op_type == E_OR) {
             return Expr(new OrVar(parameters));
@@ -201,7 +201,19 @@ Expr List::parse(Assoc &env) {
                     throw RuntimeError("Wrong number of arguments for quote");
                 }
             }
+            case E_BEGIN:{
 
+            }
+            case E_IF:{
+                if (stxs.size() == 4){
+                    Expr test = stxs[1]->parse(env);
+                    Expr conseq = stxs[2]->parse(env);
+                    Expr alt = stxs[3]->parse(env);
+                    return Expr(new If(test, conseq, alt));
+                } else {
+                    throw RuntimeError("Wrong number of arguments for if");
+                }
+            }
         	default:
             	throw RuntimeError("Unknown reserved word: " + op);
     	}

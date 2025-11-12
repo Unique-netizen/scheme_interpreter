@@ -26,7 +26,7 @@
  * - Control: void, exit
  */
 std::map<std::string, ExprType> primitives = {
-    // Arithmetic operations
+    // Arithmetic operations//DONE
     {"+",        E_PLUS},
     {"-",        E_MINUS},
     {"*",        E_MUL},
@@ -34,7 +34,7 @@ std::map<std::string, ExprType> primitives = {
     {"modulo",   E_MODULO},
     {"expt",     E_EXPT},
     
-    // Comparison operations
+    // Comparison operations//DONE
     {"<",        E_LT},
     {"<=",       E_LE},
     {"=",        E_EQ},
@@ -46,10 +46,10 @@ std::map<std::string, ExprType> primitives = {
     {"car",       E_CAR},
     {"cdr",       E_CDR},
     {"list",      E_LIST},
-    {"set-car!",  E_SETCAR},
-    {"set-cdr!",  E_SETCDR},
+    {"set-car!",  E_SETCAR},//
+    {"set-cdr!",  E_SETCDR},//
 
-    // Logic operations
+    // Logic operations//DONE
     {"not",       E_NOT},
     {"and",       E_AND},
     {"or",        E_OR},
@@ -92,13 +92,13 @@ std::map<std::string, ExprType> primitives = {
  * while maintaining their short-circuit evaluation behavior.
  */
 std::map<std::string, ExprType> reserved_words = {
-    // Control flow constructs
+    // Control flow constructs//DONE
     {"begin",   E_BEGIN},    
     {"quote",   E_QUOTE},    
 
     // Conditional
     {"if",      E_IF},       
-    {"cond",    E_COND},     
+    {"cond",    E_COND}, //    
 
     // Function definition
     {"lambda",  E_LAMBDA},   
