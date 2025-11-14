@@ -208,6 +208,60 @@ Expr List::parse(Assoc &env) {
             return Expr(new AndVar(parameters));
         } else if (op_type == E_OR) {
             return Expr(new OrVar(parameters));
+        } else if (op_type == E_EQQ) {
+            if (parameters.size() == 2) {
+                return Expr(new IsEq(parameters[0], parameters[1]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for eq?");
+            }
+        } else if (op_type == E_BOOLQ) {
+            if (parameters.size() == 1) {
+                return Expr(new IsBoolean(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for boolean?");
+            }
+        } else if (op_type == E_INTQ) {
+            if (parameters.size() == 1) {
+                return Expr(new IsFixnum(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for number?");
+            }
+        } else if (op_type == E_NULLQ) {
+            if (parameters.size() == 1) {
+                return Expr(new IsNull(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for null?");
+            }
+        } else if (op_type == E_PAIRQ) {
+            if (parameters.size() == 1) {
+                return Expr(new IsPair(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for pair?");
+            }
+        } else if (op_type == E_PROCQ) {
+            if (parameters.size() == 1) {
+                return Expr(new IsProcedure(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for procedure?");
+            }
+        } else if (op_type == E_SYMBOLQ) {
+            if (parameters.size() == 1) {
+                return Expr(new IsSymbol(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for symbol?");
+            }
+        } else if (op_type == E_LISTQ) {
+            if (parameters.size() == 1) {
+                return Expr(new IsList(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for list?");
+            }
+        } else if (op_type == E_STRINGQ) {
+            if (parameters.size() == 1) {
+                return Expr(new IsString(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for string?");
+            }
         } else {
             //TODO: TO COMPLETE THE LOGIC
         }
