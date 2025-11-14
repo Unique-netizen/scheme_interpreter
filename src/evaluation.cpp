@@ -60,47 +60,87 @@ Value Variadic::eval(Assoc &e) { // evaluation of multi-operator primitive
     // TODO: TO COMPLETE THE VARIADIC CLASS
 }
 
+//helper function to check whether a string can be converted to number
+bool toNumber(const std::string &s) {
+    try {
+        std::size_t pos;
+        std::stod(s, &pos);
+        return pos == s.length();
+    } catch (...) {
+        return false;
+    }
+}
 Value Var::eval(Assoc &e) { // evaluation of variable
-    // TODO: TO identify the invalid variable
+    //TO identify the invalid variable
     // We request all valid variable just need to be a symbol,you should promise:
     //The first character of a variable name cannot be a digit or any character from the set: {.@}
     //If a string can be recognized as a number, it will be prioritized as a number. For example: 1, -1, +123, .123, +124., 1e-3
+        //std::stod(str, pos)(size_t (sizetype))(pos default = 0)(& so that can modify)!!!
     //Variable names can overlap with primitives and reserve_words
     //Variable names can contain any non-whitespace characters except #, ', ", `, but the first character cannot be a digit
     //When a variable is not defined in the current scope, your interpreter should output RuntimeError
-    
+    if (toNumber(x)) {
+        throw RuntimeError("Invalid variable name");
+    }
+    if ((x[0] >= '0' && x[0] <= '9') || x[0] == '.' || x[0] == '@') {//!ASCII
+        throw RuntimeError("Invalid variable name");
+    }
+    for (char c : x) {
+        if (c == ' ' || c == '#' || c == '\'' || c == '\"' || c == '`') {
+            throw RuntimeError("Invalid variable name");
+        }
+    }
+
     Value matched_value = find(x, e);
     if (matched_value.get() == nullptr) {
-        if (primitives.count(x)) {
+        if (primitives.count(x)) {//procedure how to achieve self-defining???
              static std::map<ExprType, std::pair<Expr, std::vector<std::string>>> primitive_map = {
-                    {E_VOID,     {new MakeVoid(), {}}},
-                    {E_EXIT,     {new Exit(), {}}},
-                    {E_BOOLQ,    {new IsBoolean(new Var("parm")), {"parm"}}},
-                    {E_INTQ,     {new IsFixnum(new Var("parm")), {"parm"}}},
-                    {E_NULLQ,    {new IsNull(new Var("parm")), {"parm"}}},
-                    {E_PAIRQ,    {new IsPair(new Var("parm")), {"parm"}}},
-                    {E_PROCQ,    {new IsProcedure(new Var("parm")), {"parm"}}},
-                    {E_SYMBOLQ,  {new IsSymbol(new Var("parm")), {"parm"}}},
-                    {E_STRINGQ,  {new IsString(new Var("parm")), {"parm"}}},
-                    {E_DISPLAY,  {new Display(new Var("parm")), {"parm"}}},
-                    {E_PLUS,     {new PlusVar({}),  {}}},
-                    {E_MINUS,    {new MinusVar({}), {}}},
-                    {E_MUL,      {new MultVar({}),  {}}},
-                    {E_DIV,      {new DivVar({}),   {}}},
-                    {E_MODULO,   {new Modulo(new Var("parm1"), new Var("parm2")), {"parm1","parm2"}}},
-                    {E_EXPT,     {new Expt(new Var("parm1"), new Var("parm2")), {"parm1","parm2"}}},
-                    {E_EQQ,      {new EqualVar({}), {}}},
+                    {E_VOID,     {Expr(new MakeVoid()), {}}},
+                    {E_EXIT,     {Expr(new Exit()), {}}},
+                    {E_BOOLQ,    {Expr(new IsBoolean(Expr(new Var("parm")))), {"parm"}}},//is this an expression?
+                    {E_INTQ,     {Expr(new IsFixnum(Expr(new Var("parm")))), {"parm"}}},//constructor, and eval
+                    {E_NULLQ,    {Expr(new IsNull(Expr(new Var("parm")))), {"parm"}}},
+                    {E_PAIRQ,    {Expr(new IsPair(Expr(new Var("parm")))), {"parm"}}},
+                    {E_PROCQ,    {Expr(new IsProcedure(Expr(new Var("parm")))), {"parm"}}},
+                    {E_SYMBOLQ,  {Expr(new IsSymbol(Expr(new Var("parm")))), {"parm"}}},
+                    {E_LISTQ,    {Expr(new IsList(Expr(new Var("parm")))), {"parm"}}},
+                    {E_STRINGQ,  {Expr(new IsString(Expr(new Var("parm")))), {"parm"}}},
+                    {E_DISPLAY,  {Expr(new Display(Expr(new Var("parm")))), {"parm"}}},
+                    {E_PLUS,     {Expr(new PlusVar({})), {}}},
+                    {E_MINUS,    {Expr(new MinusVar({})), {}}},
+                    {E_MUL,      {Expr(new MultVar({})), {}}},
+                    {E_DIV,      {Expr(new DivVar({})), {}}},
+                    {E_MODULO,   {Expr(new Modulo(Expr(new Var("parm1")), Expr(new Var("parm2")))), {"parm1","parm2"}}},
+                    {E_EXPT,     {Expr(new Expt(Expr(new Var("parm1")), Expr(new Var("parm2")))), {"parm1","parm2"}}},
+                    {E_EQQ,      {Expr(new EqualVar({})), {}}},//var is better, because vector constructor
+                    {E_LT,       {Expr(new LessVar({})), {}}},
+                    {E_LE,       {Expr(new LessEqVar({})), {}}},
+                    {E_EQ,       {Expr(new EqualVar({})), {}}},
+                    {E_GE,       {Expr(new GreaterEqVar({})), {}}},
+                    {E_GT,       {Expr(new GreaterVar({})), {}}},
+                    {E_CONS,     {Expr(new Cons(Expr(new Var("parm1")), Expr(new Var("parm2")))), {"parm1","parm2"}}},
+                    {E_CAR,      {Expr(new Car(Expr(new Var("parm")))), {"parm"}}},
+                    {E_CDR,      {Expr(new Cdr(Expr(new Var("parm")))), {"parm"}}},
+                    {E_LIST,     {Expr(new ListFunc({})), {}}},
+                    {E_SETCAR,   {Expr(new SetCar(Expr(new Var("parm1")), Expr(new Var("parm2")))), {"parm1","parm2"}}},
+                    {E_SETCDR,   {Expr(new SetCdr(Expr(new Var("parm1")), Expr(new Var("parm2")))), {"parm1","parm2"}}},
+                    {E_NOT,      {Expr(new Not(Expr(new Var("parm")))), {"parm"}}},
+                    {E_AND,      {Expr(new AndVar({})), {}}},
+                    {E_OR,       {Expr(new OrVar({})), {}}}
             };
-
+            //LEARN PROCEDURE & APPLY
+            //what if it is a function name???
             auto it = primitive_map.find(primitives[x]);
-            //TOD0:to PASS THE parameters correctly;
+            //to PASS THE parameters correctly;
             //COMPLETE THE CODE WITH THE HINT IN IF SENTENCE WITH CORRECT RETURN VALUE
             if (it != primitive_map.end()) {
-                //TODO
+                //
+                return ProcedureV(it->second.second, it->second.first, empty());//no need of env
             }
       }
+      throw RuntimeError("Undefined variable");
     }
-    return matched_value;
+    return matched_value;//function is the same
 }
 
 Value Plus::evalRator(const Value &rand1, const Value &rand2) { // +
@@ -590,30 +630,42 @@ Value Cond::eval(Assoc &env) {
 }
 
 Value Lambda::eval(Assoc &env) { 
-    //TODO: To complete the lambda logic
+    //To complete the lambda logic
+    return ProcedureV(x, e, env);
 }
 
 Value Apply::eval(Assoc &e) {
     if (rator->eval(e)->v_type != V_PROC) {throw RuntimeError("Attempt to apply a non-procedure");}
 
-    //TODO: TO COMPLETE THE CLOSURE LOGIC
-    Procedure* clos_ptr = ;
+    //TO COMPLETE THE CLOSURE LOGIC
+    Procedure* clos_ptr = dynamic_cast<Procedure*>(rator->eval(e).get());
     
-    //TODO: TO COMPLETE THE ARGUMENT PARSER LOGIC
+    //TO COMPLETE THE ARGUMENT PARSER LOGIC
     std::vector<Value> args;
+    for (int i = 0; i < rands.size(); i++) {
+        args.push_back(rands[i]->eval(e));
+    }
     if (auto varNode = dynamic_cast<Variadic*>(clos_ptr->e.get())) {
         //TODO
-    }
+        return varNode->evalRator(args);//??????????1.meaning2.other like +, and go back to check
+    }//recheck after finishing variadic class
     if (args.size() != clos_ptr->parameters.size()) throw RuntimeError("Wrong number of arguments");
     
-    //TODO: TO COMPLETE THE PARAMETERS' ENVIRONMENT LOGIC
-    Assoc param_env = ;
+    //TO COMPLETE THE PARAMETERS' ENVIRONMENT LOGIC
+    //give parameters value, extend to closure env
+    Assoc param_env = clos_ptr->env;
+    for (int i = 0; i < args.size(); i++){
+        param_env = extend(clos_ptr->parameters[i], args[i], param_env);
+    }
 
     return clos_ptr->e->eval(param_env);
 }
 
 Value Define::eval(Assoc &env) {
-    //TODO: To complete the define logic
+    env = extend(x, voidV(), env);
+    Value v = e->eval(env);
+    env = modify(x, v, env);
+    return VoidV();
 }
 
 Value Let::eval(Assoc &env) {

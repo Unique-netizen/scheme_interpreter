@@ -64,16 +64,17 @@ Expr List::parse(Assoc &env) {
         return Expr(new Quote(Syntax(new List())));
     }
 
-    //TODO: check if the first element is a symbol//what if a list full of numbers?
+    //TODO: check if the first element is a symbol
     //If not, use Apply function to package to a closure;
     //If so, find whether it's a variable or a keyword;
-    SymbolSyntax *id = dynamic_cast<SymbolSyntax*>(stxs[0].get());//check whether is a pointer to SymbolSyntax
+    SymbolSyntax *id = dynamic_cast<SymbolSyntax*>(stxs[0].get());
     if (id == nullptr) {//dynamic cast failed
         //TODO: TO COMPLETE THE LOGIC
     }else{
     string op = id->s;
-    if (find(op, env).get() != nullptr) {//check whether it's a variable?//return?
+    if (find(op, env).get() != nullptr) {
         //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
+        
     }
     if (primitives.count(op) != 0) {//whether in primitive map//here we need: expt;cons, car, ...; and so many...
         vector<Expr> parameters;
@@ -103,7 +104,7 @@ Expr List::parse(Assoc &env) {
             } else {
                 throw RuntimeError("Wrong number of arguments for *");
             }
-        }  else if (op_type == E_DIV) {
+        } else if (op_type == E_DIV) {
             //TODO: TO COMPLETE THE LOGIC
             if (parameters.size() == 2) {
                 return Expr(new Div(parameters[0], parameters[1])); 
@@ -190,7 +191,6 @@ Expr List::parse(Assoc &env) {
             //TODO: TO COMPLETE THE LOGIC
         }
     }
-
     if (reserved_words.count(op) != 0) {
     	switch (reserved_words[op]) {
 			//TODO: TO COMPLETE THE reserve_words PARSER LOGIC
@@ -202,7 +202,7 @@ Expr List::parse(Assoc &env) {
                 }
             }
             case E_BEGIN:{
-                std::vector<Expr> es;
+                vector<Expr> es;
                 for (int i = 1; i < stxs.size(); i++){
                     es.push_back(stxs[i]->parse(env));
                 }
@@ -218,6 +218,68 @@ Expr List::parse(Assoc &env) {
                     throw RuntimeError("Wrong number of arguments for if");
                 }
             }
+            case E_LAMBDA:{
+                if (stxs.size() >= 3){
+                    //stxs[1]: parameter list. 
+                    vector<string> x;
+                    List* param_list = dynamic_cast<List*>(stxs[1].get());
+                    if (param_list == nullptr) throw RuntimeError("Wrong type of parameter list");
+                    for (int i = 0; i < param_list->stxs.size(); i++) {
+                        SymbolSyntax* p = dynamic_cast<SymbolSyntax*>(param_list->stxs[i].get());
+                        if (p == nullptr) throw RuntimeError("Wrong type of parameter");
+                        x.push_back(p->s);
+                    }
+                    //stxs[2...]: procedure
+                    vector<Expr> es;
+                    for (int i = 2; i < stxs.size(); i++){
+                        es.push_back(stxs[i]->parse(env));
+                    }
+
+                    return Expr(new Lambda(x, Expr(new Begin(es))));
+                }else{
+                    throw RuntimeError("Wrong number of arguments for lambda");
+                }
+            }
+            case E_DEFINE:{
+                if (stxs.size() >= 3) {
+                    if (auto p = dynamic_cast<SymbolSyntax*>(stxs[1].get())){
+                        if (stxs.size() != 3) {
+                            throw RuntimeError("Wrong number of arguments for variable define");
+                        }
+                        string var = p->s;
+                        if (primitives.count(var) || reserved_words.count(var)) {
+                            throw RuntimeError("Invalid variable name in define");
+                        }
+                        Expr e = stxs[2]->parse(env);
+                        return Expr(new Define(var, e));
+                    } else if (auto p = dynamic_cast<List*>(stxs[1].get())) {
+                        //turn the simple form into name and lambda
+                        if (p->stxs.empty()) {
+                            throw RuntimeError("Invalid function definition in define");
+                        }
+                        auto p_name = dynamic_cast<SymbolSyntax*>(p->stxs[0].get());
+                        if (p_name == nullptr) throw RuntimeError("Invalid function name in define");
+                        string name = p_name->s;
+                        vector<string> x;
+                        for (int i = 1; i < p->stxs.size(); i++){
+                            auto p_param = dynamic_cast<SymbolSyntax*>(p->stxs[i].get());
+                            if (p_param == nullptr) throw RuntimeError("Invalid parameter name in define");
+                            x.push_back(p_param->s);
+                        }
+                        vector<Expr> es;
+                        for (int i = 2; i < stxs.size(); i++){
+                            es.push_back(stxs[i]->parse(env));
+                        }
+                        Expr e = Expr(new Begin(es));
+                        return Expr(new Define(name, Expr(new Lambda(x, e))));
+                    } else {
+                        throw RuntimeError("Wrong type of variable in define");
+                    }
+                } else {
+                    throw RuntimeError("Wrong number of arguments for define");
+                }
+                
+            }
         	default:
             	throw RuntimeError("Unknown reserved word: " + op);
     	}
@@ -225,5 +287,11 @@ Expr List::parse(Assoc &env) {
 
     //default: use Apply to be an expression
     //TODO: TO COMPLETE THE PARSER LOGIC
-}//else
-}//k=list
+    Expr rator = stxs[0]->parse(env);
+    vector<Expr> rands;
+    for (int i = 1; i < stxs.size(); i++){
+        rands.push_back(stxs[i]->parse(env));
+    }
+    return Expr(new Apply(rator, rands));
+}
+}

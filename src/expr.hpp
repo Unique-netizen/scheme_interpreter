@@ -150,7 +150,7 @@ struct Div : Binary {
     virtual Value evalRator(const Value &, const Value &) override;
 };
 
-struct Modulo : Binary {//no new member
+struct Modulo : Binary {
     Modulo(const Expr &, const Expr &);
     virtual Value evalRator(const Value &, const Value &) override;
 };
