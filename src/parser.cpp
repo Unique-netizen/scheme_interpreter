@@ -92,6 +92,9 @@ Expr List::parse(Assoc &env) {
             }
         } else if (op_type == E_MINUS) {
             //TO COMPLETE THE LOGIC
+            if (parameters.size() == 0) {
+                throw RuntimeError("Wrong number of arguments for -");
+            }
             if (parameters.size() == 2) {
                 return Expr(new Minus(parameters[0], parameters[1])); 
             } else {
@@ -106,6 +109,9 @@ Expr List::parse(Assoc &env) {
             }
         } else if (op_type == E_DIV) {
             //TO COMPLETE THE LOGIC
+            if (parameters.size() == 0) {
+                throw RuntimeError("Wrong number of arguments for /");
+            }
             if (parameters.size() == 2) {
                 return Expr(new Div(parameters[0], parameters[1])); 
             } else {
@@ -122,7 +128,7 @@ Expr List::parse(Assoc &env) {
             } else {
                 throw RuntimeError("Wrong number of arguments for expt");
             }
-        }else if (op_type == E_LIST) {
+        } else if (op_type == E_LIST) {
             return Expr(new ListFunc(parameters));//what???
         } else if (op_type == E_CONS) {
             if (parameters.size() == 2) {
@@ -130,52 +136,67 @@ Expr List::parse(Assoc &env) {
             } else {
                 throw RuntimeError("Wrong number of arguments for cons");
             }
-        }else if (op_type == E_CAR) {
+        } else if (op_type == E_CAR) {
             if (parameters.size() == 1) {
                 return Expr(new Car(parameters[0]));
             } else {
                 throw RuntimeError("Wrong number of arguments for car");
             }
-        }else if (op_type == E_CDR) {
+        } else if (op_type == E_CDR) {
             if (parameters.size() == 1) {
                 return Expr(new Cdr(parameters[0]));
             } else {
                 throw RuntimeError("Wrong number of arguments for cdr");
             }
-        }else if (op_type == E_LT) {
+        } else if (op_type == E_LT) {
             //TO COMPLETE THE LOGIC
+            if (parameters.size() < 2) {
+                throw RuntimeError("Wrong number of arguments for <");
+            }
             if (parameters.size() == 2) {
                 return Expr(new Less(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for <");
+                return Expr(new LessVar(parameters));
             }
         } else if (op_type == E_LE) {
             //TO COMPLETE THE LOGIC
+            if (parameters.size() < 2) {
+                throw RuntimeError("Wrong number of arguments for <=");
+            }
             if (parameters.size() == 2) {
                 return Expr(new LessEq(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for <=");
+                return Expr(new LessEqVar(parameters));
             }
         } else if (op_type == E_EQ) {
             //TO COMPLETE THE LOGIC
+            if (parameters.size() < 2) {
+                throw RuntimeError("Wrong number of arguments for =");
+            }
             if (parameters.size() == 2) {
                 return Expr(new Equal(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for =");
+                return Expr(new EqualVar(parameters));
             }
         } else if (op_type == E_GE) {
             //TO COMPLETE THE LOGIC
+            if (parameters.size() < 2) {
+                throw RuntimeError("Wrong number of arguments for >=");
+            }
             if (parameters.size() == 2) {
                 return Expr(new GreaterEq(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for >=");
+                return Expr(new GreaterEqVar(parameters));
             }
         } else if (op_type == E_GT) {
             //TO COMPLETE THE LOGIC
+            if (parameters.size() < 2) {
+                throw RuntimeError("Wrong number of arguments for >");
+            }
             if (parameters.size() == 2) {
                 return Expr(new Greater(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for >");
+                return Expr(new GreaterVar(parameters));
             }
         } else if (op_type == E_NOT){
             if (parameters.size() == 1) {
@@ -183,7 +204,7 @@ Expr List::parse(Assoc &env) {
             } else {
                 throw RuntimeError("Wrong number of arguments for not");
             }
-        }else if (op_type == E_AND) {
+        } else if (op_type == E_AND) {
             return Expr(new AndVar(parameters));
         } else if (op_type == E_OR) {
             return Expr(new OrVar(parameters));

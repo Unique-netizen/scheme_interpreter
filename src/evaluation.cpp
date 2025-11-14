@@ -377,9 +377,6 @@ Value PlusVar::evalRator(const std::vector<Value> &args) { // + with multiple ar
 
 Value MinusVar::evalRator(const std::vector<Value> &args) { // - with multiple args
     //To complete the substraction logic
-    if (args.empty()) {
-        throw(RuntimeError("Wrong number of arguments for -"));
-    }
     std::vector<std::pair<int, int>> rationals = toRationals(args);
     std::pair<int, int> result = rationals[0];
     if (rationals.size() == 1){
@@ -556,23 +553,58 @@ Value Greater::evalRator(const Value &rand1, const Value &rand2) { // >
 }
 
 Value LessVar::evalRator(const std::vector<Value> &args) { // < with multiple args
-    //TODO: To complete the less logic
+    //To complete the less logic
+    for (int i = 0; i < args.size() - 1; i++) {
+        int compare = compareNumericValues(args[i], args[i + 1]);
+        if (compare != -1) {
+            return BooleanV(false);
+        }
+    }
+    return BooleanV(true);
 }
 
 Value LessEqVar::evalRator(const std::vector<Value> &args) { // <= with multiple args
-    //TODO: To complete the lesseq logic
+    //To complete the lesseq logic
+    for (int i = 0; i < args.size() - 1; i++) {
+        int compare = compareNumericValues(args[i], args[i + 1]);
+        if (compare == 1) {
+            return BooleanV(false);
+        }
+    }
+    return BooleanV(true);
 }
 
 Value EqualVar::evalRator(const std::vector<Value> &args) { // = with multiple args
-    //TODO: To complete the equal logic
+    //To complete the equal logic
+    for (int i = 0; i < args.size() - 1; i++) {
+        int compare = compareNumericValues(args[i], args[i + 1]);
+        if (compare != 0) {
+            return BooleanV(false);
+        }
+    }
+    return BooleanV(true);
 }
 
 Value GreaterEqVar::evalRator(const std::vector<Value> &args) { // >= with multiple args
-    //TODO: To complete the greatereq logic
+    //To complete the greatereq logic
+    for (int i = 0; i < args.size() - 1; i++) {
+        int compare = compareNumericValues(args[i], args[i + 1]);
+        if (compare == -1) {
+            return BooleanV(false);
+        }
+    }
+    return BooleanV(true);
 }
 
 Value GreaterVar::evalRator(const std::vector<Value> &args) { // > with multiple args
-    //TODO: To complete the greater logic
+    //To complete the greater logic
+    for (int i = 0; i < args.size() - 1; i++) {
+        int compare = compareNumericValues(args[i], args[i + 1]);
+        if (compare != 1) {
+            return BooleanV(false);
+        }
+    }
+    return BooleanV(true);
 }
 
 Value Cons::evalRator(const Value &rand1, const Value &rand2) { // cons
