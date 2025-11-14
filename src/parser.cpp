@@ -88,28 +88,28 @@ Expr List::parse(Assoc &env) {
             if (parameters.size() == 2) {
                 return Expr(new Plus(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for +");
+                return Expr(new PlusVar(parameters));
             }
         } else if (op_type == E_MINUS) {
-            //TODO: TO COMPLETE THE LOGIC
+            //TO COMPLETE THE LOGIC
             if (parameters.size() == 2) {
                 return Expr(new Minus(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for -");
+                return Expr(new MinusVar(parameters));
             }
         } else if (op_type == E_MUL) {
-            //TODO: TO COMPLETE THE LOGIC
+            //TO COMPLETE THE LOGIC
             if (parameters.size() == 2) {
                 return Expr(new Mult(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for *");
+                return Expr(new MultVar(parameters));
             }
         } else if (op_type == E_DIV) {
-            //TODO: TO COMPLETE THE LOGIC
+            //TO COMPLETE THE LOGIC
             if (parameters.size() == 2) {
                 return Expr(new Div(parameters[0], parameters[1])); 
             } else {
-                throw RuntimeError("Wrong number of arguments for /");
+                return Expr(new DivVar(parameters));
             }
         } else if (op_type == E_MODULO) {
             if (parameters.size() != 2) {

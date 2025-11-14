@@ -299,20 +299,137 @@ Value Modulo::evalRator(const Value &rand1, const Value &rand2) { // modulo
     throw(RuntimeError("modulo is only defined for integers"));
 }
 
+// Helper function to calculate greatest common divisor//will this be included???and static
+static int gcd(int a, int b) {
+    if (a < 0) a = -a;
+    if (b < 0) b = -b;
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+//helper function to transform args into rationals
+static std::vector<std::pair<int, int>> toRationals(const std::vector<Value> &args) {
+    std::vector<std::pair<int, int>> rationals;
+    for (const auto &arg : args) {
+        if (arg->v_type == V_INT) {
+            int n = dynamic_cast<Integer*>(arg.get())->n;
+            rationals.push_back({n, 1});
+        }else if (arg->v_type == V_RATIONAL) {
+            auto p = dynamic_cast<Rational*>(arg.get());
+            rationals.push_back({p->numerator, p->denominator});
+        }else {
+            throw(RuntimeError("Wrong typename"));
+        }
+    }
+    return rationals;
+}
+//helper function to do variadic arithmetics
+static std::pair<int, int> arithmeticVar(std::pair<int, int> r1, std::pair<int, int> r2, char op) {
+    switch(op) {
+        case '+': {
+            int num = r1.first * r2.second + r2.first * r1.second;
+            int den = r1.second * r2.second;
+            int g = gcd(num, den);
+            return {num / g, den / g};
+        }
+        case '-': {
+            int num = r1.first * r2.second - r2.first * r1.second;
+            int den = r1.second * r2.second;
+            int g = gcd(num, den);
+            return {num / g, den / g};
+        }
+        case '*': {
+            int num = r1.first * r2.first;
+            int den = r1.second * r2.second;
+            int g = gcd(num, den);
+            return {num / g, den / g};
+        }
+        case '/': {
+            if (r2.first == 0) {
+                throw(RuntimeError("Division by zero"));
+            }
+            int num = r1.first * r2.second;
+            int den = r1.second * r2.first;
+            int g = gcd(num, den);
+            return {num / g, den / g};
+        }
+    }
+}
 Value PlusVar::evalRator(const std::vector<Value> &args) { // + with multiple args
-    //TODO: To complete the addition logic
+    //To complete the addition logic
+    if (args.empty()) {
+        return IntegerV(0);
+    }
+    std::vector<std::pair<int, int>> rationals = toRationals(args);
+    std::pair<int, int> result = rationals[0];
+    for (int i = 1; i < rationals.size(); ++i) {
+        result = arithmeticVar(result, rationals[i], '+');
+    }
+    if (result.second == 1) {
+        return IntegerV(result.first);
+    } else {
+        return RationalV(result.first, result.second);
+    }
 }
 
 Value MinusVar::evalRator(const std::vector<Value> &args) { // - with multiple args
-    //TODO: To complete the substraction logic
+    //To complete the substraction logic
+    if (args.empty()) {
+        throw(RuntimeError("Wrong number of arguments for -"));
+    }
+    std::vector<std::pair<int, int>> rationals = toRationals(args);
+    std::pair<int, int> result = rationals[0];
+    if (rationals.size() == 1){
+        result.first = 0 - result.first;
+    }
+    for (int i = 1; i < rationals.size(); ++i) {
+        result = arithmeticVar(result, rationals[i], '-');
+    }
+    if (result.second == 1) {
+        return IntegerV(result.first);
+    } else {
+        return RationalV(result.first, result.second);
+    }
 }
 
 Value MultVar::evalRator(const std::vector<Value> &args) { // * with multiple args
-    //TODO: To complete the multiplication logic
+    //To complete the multiplication logic
+    if (args.empty()) {
+        return IntegerV(1);
+    }
+    std::vector<std::pair<int, int>> rationals = toRationals(args);
+    std::pair<int, int> result = rationals[0];
+    for (int i = 1; i < rationals.size(); ++i) {
+        result = arithmeticVar(result, rationals[i], '*');
+    }
+    if (result.second == 1) {
+        return IntegerV(result.first);
+    } else {
+        return RationalV(result.first, result.second);
+    }
 }
 
 Value DivVar::evalRator(const std::vector<Value> &args) { // / with multiple args
-    //TODO: To complete the divisor logic
+    //To complete the divisor logic
+    std::vector<std::pair<int, int>> rationals = toRationals(args);
+    std::pair<int, int> result = rationals[0];
+    if (rationals.size() == 1) {
+        if (result.first == 0) {
+            throw(RuntimeError("Division by zero"));
+        }
+        result = {result.second, result.first};
+    }
+    for (int i = 1; i < rationals.size(); ++i) {
+        result = arithmeticVar(result, rationals[i], '/');
+    }
+    if (result.second == 1) {
+        return IntegerV(result.first);
+    } else {
+        return RationalV(result.first, result.second);
+    }
 }
 
 Value Expt::evalRator(const Value &rand1, const Value &rand2) { // expt
