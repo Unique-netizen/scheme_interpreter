@@ -785,7 +785,20 @@ Value If::eval(Assoc &e) {
 }
 
 Value Cond::eval(Assoc &env) {
-    //TODO: To complete the cond logic
+    //To complete the cond logic
+    for (const auto& clause : clauses) {
+        Value test = clause[0]->eval(env);
+        if (test->v_type == V_BOOL && !(dynamic_cast<Boolean*>(test.get())->b)) {
+            continue;
+        }
+        if (clause.size() == 1) return test;
+        Value ret = clause[1]->eval(env);
+        for (int i = 2; i < clause.size(); i++) {
+            ret = clause[i]->eval(env);
+        }
+        return ret;
+    }
+    return VoidV();
 }
 
 Value Lambda::eval(Assoc &env) { 

@@ -298,7 +298,32 @@ Expr List::parse(Assoc &env) {
                 }
             }
             case E_COND:{
-
+                if (stxs.size() == 1) throw RuntimeError("Wrong number of arguments for cond");
+                vector<vector<Expr>> clauses;
+                for (int i = 1; i < stxs.size(); i++) {
+                    List* clause = dynamic_cast<List*>(stxs[i].get());
+                    if (clause == nullptr || clause->stxs.size() == 0) {
+                        throw RuntimeError("Wrong type of clause in cond");
+                    }
+                    if (auto else_symbol = dynamic_cast<SymbolSyntax*>(clause->stxs[0].get())) {
+                        if (else_symbol->s == "else") {
+                            if (clause->stxs.size() == 1) {
+                                throw RuntimeError("No expressions in else clause");
+                            }
+                            vector<Expr> clause_expr{Expr(new True())};
+                            for (int j = 1; j < clause->stxs.size(); j++) {
+                                clause_expr.push_back(clause->stxs[j]->parse(env));
+                            }
+                            clauses.push_back(clause_expr);
+                            continue;
+                        }
+                    }
+                    vector<Expr> clause_expr;
+                    for (int j = 0; j < clause->stxs.size(); j++) {
+                        clause_expr.push_back(clause->stxs[j]->parse(env));
+                    }
+                    clauses.push_back(clause_expr);
+                }
             }
             case E_LAMBDA:{
                 if (stxs.size() >= 3){
