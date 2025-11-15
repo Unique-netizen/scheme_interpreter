@@ -129,7 +129,11 @@ Expr List::parse(Assoc &env) {
                 throw RuntimeError("Wrong number of arguments for expt");
             }
         } else if (op_type == E_LIST) {
-            return Expr(new ListFunc(parameters));//what???
+            return Expr(new ListFunc(parameters));
+        } else if (op_type == E_SETCAR) {
+
+        } else if (op_type == E_SETCDR) {
+
         } else if (op_type == E_CONS) {
             if (parameters.size() == 2) {
                 return Expr(new Cons(parameters[0], parameters[1]));
@@ -292,6 +296,9 @@ Expr List::parse(Assoc &env) {
                 } else {
                     throw RuntimeError("Wrong number of arguments for if");
                 }
+            }
+            case E_COND:{
+
             }
             case E_LAMBDA:{
                 if (stxs.size() >= 3){

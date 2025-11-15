@@ -613,11 +613,21 @@ Value Cons::evalRator(const Value &rand1, const Value &rand2) { // cons
 }
 
 Value ListFunc::evalRator(const std::vector<Value> &args) { // list function
-    //TODO: To complete the list logic
+    //To complete the list logic
+    Value pointer = NullV();
+    for (int i = args.size() - 1; i >= 0; i--) {
+        pointer = PairV(args[i], pointer);
+    }
+    return pointer;
 }
 
 Value IsList::evalRator(const Value &rand) { // list?
-    //TODO: To complete the list? logic
+    //To complete the list? logic
+    if (rand->v_type == V_NULL) return BooleanV(true);
+    if (auto p = dynamic_cast<Pair*>(rand.get())) {
+        return IsList().evalRator(p->cdr);
+    }
+    return BooleanV(false);
 }
 
 Value Car::evalRator(const Value &rand) { // car

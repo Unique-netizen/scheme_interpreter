@@ -54,7 +54,7 @@ std::map<std::string, ExprType> primitives = {
     {"and",       E_AND},
     {"or",        E_OR},
     
-    // Type predicates
+    // Type predicates//DONE
     {"eq?",        E_EQQ},
     {"boolean?",   E_BOOLQ},
     {"number?",    E_INTQ},      
@@ -100,11 +100,11 @@ std::map<std::string, ExprType> reserved_words = {
     {"if",      E_IF},       
     {"cond",    E_COND}, //    
 
-    // Function definition
+    // Function definition//DONE
     {"lambda",  E_LAMBDA},   
 
     // Variable and function definition
-    {"define",  E_DEFINE},   
+    {"define",  E_DEFINE},//DONE   
 
     // Binding constructs
     {"let",     E_LET},      
