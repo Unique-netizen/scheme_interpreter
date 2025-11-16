@@ -836,7 +836,7 @@ Value Apply::eval(Assoc &e) {
 Value Define::eval(Assoc &env) {
     env = extend(x, Value(nullptr), env);
     Value v = e->eval(env);
-    env = modify(x, v, env);
+    modify(x, v, env);
     return VoidV();
 }
 
@@ -852,7 +852,7 @@ Value Let::eval(Assoc &env) {
 }
 
 Value Letrec::eval(Assoc &env) {
-    //o complete the letrec logic
+    //To complete the letrec logic
     Assoc env1 = env;
     for (int i = 0; i < bind.size(); i++) {
         env1 = extend(bind[i].first, Value(nullptr), env1);
@@ -864,7 +864,12 @@ Value Letrec::eval(Assoc &env) {
 }
 
 Value Set::eval(Assoc &env) {
-    //TODO: To complete the set logic
+    //To complete the set logic
+    if (find(x, env).get() == nullptr) {
+        throw RuntimeError("Unbound variable in set!");
+    }
+    modify(x, e->eval(env), env);
+    return VoidV();
 }
 
 Value Display::evalRator(const Value &rand) { // display function

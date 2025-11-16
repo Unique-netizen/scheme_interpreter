@@ -96,9 +96,9 @@ std::map<std::string, ExprType> reserved_words = {
     {"begin",   E_BEGIN},    
     {"quote",   E_QUOTE},    
 
-    // Conditional
+    // Conditional//DONE
     {"if",      E_IF},       
-    {"cond",    E_COND}, //    
+    {"cond",    E_COND},   
 
     // Function definition//DONE
     {"lambda",  E_LAMBDA},   
@@ -106,7 +106,7 @@ std::map<std::string, ExprType> reserved_words = {
     // Variable and function definition
     {"define",  E_DEFINE},//DONE   
 
-    // Binding constructs
+    // Binding constructs//DONE
     {"let",     E_LET},      
     {"letrec",  E_LETREC},   
     

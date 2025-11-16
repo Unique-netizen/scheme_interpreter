@@ -435,6 +435,17 @@ Expr List::parse(Assoc &env) {
                 }
                 return Expr(new Letrec(bind, Expr(new Begin(es))));
             }
+            case E_SET:{
+                if (stxs.size() == 3) {
+                    auto p_var = dynamic_cast<SymbolSyntax*>(stxs[1].get());
+                    if (p_var == nullptr) throw RuntimeError("Wrong type of variable in set!");
+                    string var = p_var->s;
+                    Expr e = stxs[2]->parse(env);
+                    return Expr(new Set(var, e));
+                } else {
+                    throw RuntimeError("Wrong number of arguments for set!");
+                }
+            }
         	default:
             	throw RuntimeError("Unknown reserved word: " + op);
     	}
