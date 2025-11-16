@@ -834,7 +834,7 @@ Value Apply::eval(Assoc &e) {
 }
 
 Value Define::eval(Assoc &env) {
-    env = extend(x, voidV(), env);
+    env = extend(x, Value(nullptr), env);
     Value v = e->eval(env);
     env = modify(x, v, env);
     return VoidV();
@@ -852,8 +852,15 @@ Value Let::eval(Assoc &env) {
 }
 
 Value Letrec::eval(Assoc &env) {
-    //TODO: To complete the letrec logic
-
+    //o complete the letrec logic
+    Assoc env1 = env;
+    for (int i = 0; i < bind.size(); i++) {
+        env1 = extend(bind[i].first, Value(nullptr), env1);
+    }
+    for (int i = 0; i < bind.size(); i++) {
+        env1 = modify(bind[i].first, bind[i].second->eval(env1), env1);
+    }
+    return body->eval(env1);
 }
 
 Value Set::eval(Assoc &env) {
