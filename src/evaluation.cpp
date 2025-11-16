@@ -841,11 +841,19 @@ Value Define::eval(Assoc &env) {
 }
 
 Value Let::eval(Assoc &env) {
-    //TODO: To complete the let logic
+    //To complete the let logic
+    //create new env
+    Assoc let_env = env;
+    for (int i = 0; i < bind.size(); i++){
+        let_env = extend(bind[i].first, bind[i].second->eval(env), let_env);
+    }
+    
+    return body->eval(let_env);
 }
 
 Value Letrec::eval(Assoc &env) {
     //TODO: To complete the letrec logic
+
 }
 
 Value Set::eval(Assoc &env) {

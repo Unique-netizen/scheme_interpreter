@@ -387,6 +387,33 @@ Expr List::parse(Assoc &env) {
                 }
                 
             }
+            case E_LET:{
+                if (stxs.size() < 3) throw RuntimeError("Wrong number of arguments for let");
+                //stxs[1]: bind
+                List* bind_list = dynamic_cast<List*>(stxs[1].get());
+                if (bind_list == nullptr) throw RuntimeError("Wrong type of binding list in let");
+                vector<pair<string, Expr>> bind;
+                for (int i = 0; i < bind_list->stxs.size(); i++) {
+                    List* bind_pair = dynamic_cast<List*>(bind_list->stxs[i].get());
+                    if (bind_pair == nullptr || bind_pair->stxs.size() != 2) {
+                        throw RuntimeError("Wrong type of binding pair in let");
+                    }
+                    auto p_var = dynamic_cast<SymbolSyntax*>(bind_pair->stxs[0].get());
+                    if (p_var == nullptr) throw RuntimeError("Wrong type of variable in let binding");
+                    string var = p_var->s;
+                    Expr e = bind_pair->stxs[1]->parse(env);
+                    bind.push_back({var, e});
+                }
+                //stxs[2...]: body
+                vector<Expr> es;
+                for (int i = 2; i < stxs.size(); i++){
+                    es.push_back(stxs[i]->parse(env));
+                }
+                return Expr(new Let(bind, Expr(new Begin(es))));
+            }
+            case E_LETREC:{
+                
+            }
         	default:
             	throw RuntimeError("Unknown reserved word: " + op);
     	}
