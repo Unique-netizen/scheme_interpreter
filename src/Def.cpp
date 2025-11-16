@@ -26,7 +26,7 @@
  * - Control: void, exit
  */
 std::map<std::string, ExprType> primitives = {
-    // Arithmetic operations//DONE
+    // Arithmetic operations
     {"+",        E_PLUS},
     {"-",        E_MINUS},
     {"*",        E_MUL},
@@ -34,7 +34,7 @@ std::map<std::string, ExprType> primitives = {
     {"modulo",   E_MODULO},
     {"expt",     E_EXPT},
     
-    // Comparison operations//DONE
+    // Comparison operations
     {"<",        E_LT},
     {"<=",       E_LE},
     {"=",        E_EQ},
@@ -46,15 +46,15 @@ std::map<std::string, ExprType> primitives = {
     {"car",       E_CAR},
     {"cdr",       E_CDR},
     {"list",      E_LIST},
-    {"set-car!",  E_SETCAR},//
-    {"set-cdr!",  E_SETCDR},//
+    {"set-car!",  E_SETCAR},
+    {"set-cdr!",  E_SETCDR},
 
-    // Logic operations//DONE
+    // Logic operations
     {"not",       E_NOT},
     {"and",       E_AND},
     {"or",        E_OR},
     
-    // Type predicates//DONE
+    // Type predicates
     {"eq?",        E_EQQ},
     {"boolean?",   E_BOOLQ},
     {"number?",    E_INTQ},      
@@ -92,21 +92,21 @@ std::map<std::string, ExprType> primitives = {
  * while maintaining their short-circuit evaluation behavior.
  */
 std::map<std::string, ExprType> reserved_words = {
-    // Control flow constructs//DONE
+    // Control flow constructs
     {"begin",   E_BEGIN},    
     {"quote",   E_QUOTE},    
 
-    // Conditional//DONE
+    // Conditional
     {"if",      E_IF},       
     {"cond",    E_COND},   
 
-    // Function definition//DONE
+    // Function definition
     {"lambda",  E_LAMBDA},   
 
     // Variable and function definition
-    {"define",  E_DEFINE},//DONE   
+    {"define",  E_DEFINE},   
 
-    // Binding constructs//DONE
+    // Binding constructs
     {"let",     E_LET},      
     {"letrec",  E_LETREC},   
     

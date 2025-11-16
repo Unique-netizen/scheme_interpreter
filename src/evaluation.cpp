@@ -647,11 +647,19 @@ Value Cdr::evalRator(const Value &rand) { // cdr
 }
 
 Value SetCar::evalRator(const Value &rand1, const Value &rand2) { // set-car!
-    //TODO: To complete the set-car! logic
+    //To complete the set-car! logic
+    auto p_pair = dynamic_cast<Pair*>(rand1.get());
+    if (p_pair == nullptr) throw RuntimeError("Wrong typename");
+    p_pair->car = rand2;
+    return VoidV();
 }
 
 Value SetCdr::evalRator(const Value &rand1, const Value &rand2) { // set-cdr!
-   //TODO: To complete the set-cdr! logic
+   //To complete the set-cdr! logic
+   auto p_pair = dynamic_cast<Pair*>(rand1.get());
+   if (p_pair == nullptr) throw RuntimeError("Wrong typename");
+   p_pair->cdr = rand2;
+   return VoidV();
 }
 
 Value IsEq::evalRator(const Value &rand1, const Value &rand2) { // eq?

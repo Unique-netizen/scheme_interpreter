@@ -131,9 +131,17 @@ Expr List::parse(Assoc &env) {
         } else if (op_type == E_LIST) {
             return Expr(new ListFunc(parameters));
         } else if (op_type == E_SETCAR) {
-
+            if (parameters.size() == 2) {
+                return Expr(new SetCar(parameters[0], parameters[1]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for set-car!");
+            }
         } else if (op_type == E_SETCDR) {
-
+            if (parameters.size() == 2) {
+                return Expr(new SetCdr(parameters[0], parameters[1]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for set-cdr!");
+            }
         } else if (op_type == E_CONS) {
             if (parameters.size() == 2) {
                 return Expr(new Cons(parameters[0], parameters[1]));
@@ -266,8 +274,24 @@ Expr List::parse(Assoc &env) {
             } else {
                 throw RuntimeError("Wrong number of arguments for string?");
             }
+        } else if (op_type == E_DISPLAY) {
+            if (parameters.size() == 1) {
+                return Expr(new Display(parameters[0]));
+            } else {
+                throw RuntimeError("Wrong number of arguments for display");
+            }
+        } else if (op_type == E_VOID) {
+            if (parameters.size() != 0) {
+                throw RuntimeError("Wrong number of arguments for void");
+            }
+            return Expr(new MakeVoid());
+        } else if (op_type == E_EXIT) {
+            if (parameters.size() != 0) {
+                throw RuntimeError("Wrong number of arguments for exit");
+            }
+            return Expr(new Exit());
         } else {
-            //TODO: TO COMPLETE THE LOGIC
+            throw RuntimeError("Unknown primitive : " + op);
         }
     }
     if (reserved_words.count(op) != 0) {
