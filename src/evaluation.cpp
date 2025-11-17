@@ -626,7 +626,7 @@ Value IsList::evalRator(const Value &rand) { // list?
     //To complete the list? logic
     if (rand->v_type == V_NULL) return BooleanV(true);
     if (auto p = dynamic_cast<Pair*>(rand.get())) {
-        return IsList().evalRator(p->cdr);
+        return IsList.evalRator(p->cdr);
     }
     return BooleanV(false);
 }
@@ -823,8 +823,8 @@ Value Apply::eval(Assoc &e) {
     
     //TO COMPLETE THE ARGUMENT PARSER LOGIC
     std::vector<Value> args;
-    for (int i = 0; i < rands.size(); i++) {
-        args.push_back(rands[i]->eval(e));
+    for (int i = 0; i < rand.size(); i++) {
+        args.push_back(rand[i]->eval(e));
     }
     if (auto varNode = dynamic_cast<Variadic*>(clos_ptr->e.get())) {
         //expr is variadic, which doesn't have certain number of parameters
@@ -843,9 +843,9 @@ Value Apply::eval(Assoc &e) {
 }
 
 Value Define::eval(Assoc &env) {
-    env = extend(x, Value(nullptr), env);
+    env = extend(var, Value(nullptr), env);
     Value v = e->eval(env);
-    modify(x, v, env);
+    modify(var, v, env);
     return VoidV();
 }
 
@@ -867,7 +867,7 @@ Value Letrec::eval(Assoc &env) {
         env1 = extend(bind[i].first, Value(nullptr), env1);
     }
     for (int i = 0; i < bind.size(); i++) {
-        env1 = modify(bind[i].first, bind[i].second->eval(env1), env1);
+        modify(bind[i].first, bind[i].second->eval(env1), env1);
     }
     return body->eval(env1);
 }

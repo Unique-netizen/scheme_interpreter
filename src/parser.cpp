@@ -71,21 +71,21 @@ Expr List::parse(Assoc &env) {
     if (id == nullptr) {//dynamic cast failed
         //TO COMPLETE THE LOGIC
         Expr rator = stxs[0]->parse(env);
-        vector<Expr> rands;
+        vector<Expr> rand;
         for (int i = 1; i < stxs.size(); i++){
-            rands.push_back(stxs[i]->parse(env));
+            rand.push_back(stxs[i]->parse(env));
         }
-        return Expr(new Apply(rator, rands));
+        return Expr(new Apply(rator, rand));
     }else{
     string op = id->s;
     if (find(op, env).get() != nullptr) {//a var(a function)
         //TO COMPLETE THE PARAMETER PARSER LOGIC
         Expr rator = stxs[0]->parse(env);
-        vector<Expr> rands;
+        vector<Expr> rand;
         for (int i = 1; i < stxs.size(); i++){
-            rands.push_back(stxs[i]->parse(env));
+            rand.push_back(stxs[i]->parse(env));
         }
-        return Expr(new Apply(rator, rands));
+        return Expr(new Apply(rator, rand));
     }
     if (primitives.count(op) != 0) {//a primitive
         vector<Expr> parameters;
@@ -488,10 +488,10 @@ Expr List::parse(Assoc &env) {
     //default: use Apply to be an expression
     //TO COMPLETE THE PARSER LOGIC
     Expr rator = stxs[0]->parse(env);
-    vector<Expr> rands;
+    vector<Expr> rand;
     for (int i = 1; i < stxs.size(); i++){
-        rands.push_back(stxs[i]->parse(env));
+        rand.push_back(stxs[i]->parse(env));
     }
-    return Expr(new Apply(rator, rands));
+    return Expr(new Apply(rator, rand));
 }//else
 }
