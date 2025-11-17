@@ -626,7 +626,7 @@ Value IsList::evalRator(const Value &rand) { // list?
     //To complete the list? logic
     if (rand->v_type == V_NULL) return BooleanV(true);
     if (auto p = dynamic_cast<Pair*>(rand.get())) {
-        return IsList.evalRator(p->cdr);
+        return evalRator(p->cdr);
     }
     return BooleanV(false);
 }
@@ -874,10 +874,10 @@ Value Letrec::eval(Assoc &env) {
 
 Value Set::eval(Assoc &env) {
     //To complete the set logic
-    if (find(x, env).get() == nullptr) {
+    if (find(var, env).get() == nullptr) {
         throw RuntimeError("Unbound variable in set!");
     }
-    modify(x, e->eval(env), env);
+    modify(var, e->eval(env), env);
     return VoidV();
 }
 
