@@ -35,7 +35,7 @@ Expr Number::parse(Assoc &env) {
     return Expr(new Fixnum(n));
 }
 
-Expr RationalSyntax::parse(Assoc &env) {//may need: simplify(in constructor); check 0. 
+Expr RationalSyntax::parse(Assoc &env) { 
     //complete the rational parser
     if (denominator == 0) {
         throw RuntimeError("Denominator cannot be zero");
@@ -61,28 +61,38 @@ Expr FalseSyntax::parse(Assoc &env) {
 
 Expr List::parse(Assoc &env) {
     if (stxs.empty()) {
-        return Expr(new Quote(Syntax(new List())));
+        return Expr(new Quote(Syntax(new List())));//空表的quote, parameters???
     }
 
-    //TODO: check if the first element is a symbol
+    //check if the first element is a symbol
     //If not, use Apply function to package to a closure;
     //If so, find whether it's a variable or a keyword;
     SymbolSyntax *id = dynamic_cast<SymbolSyntax*>(stxs[0].get());
     if (id == nullptr) {//dynamic cast failed
-        //TODO: TO COMPLETE THE LOGIC
+        //TO COMPLETE THE LOGIC
+        Expr rator = stxs[0]->parse(env);
+        vector<Expr> rands;
+        for (int i = 1; i < stxs.size(); i++){
+            rands.push_back(stxs[i]->parse(env));
+        }
+        return Expr(new Apply(rator, rands));
     }else{
     string op = id->s;
-    if (find(op, env).get() != nullptr) {
-        //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
-        
+    if (find(op, env).get() != nullptr) {//a var(a function)
+        //TO COMPLETE THE PARAMETER PARSER LOGIC
+        Expr rator = stxs[0]->parse(env);
+        vector<Expr> rands;
+        for (int i = 1; i < stxs.size(); i++){
+            rands.push_back(stxs[i]->parse(env));
+        }
+        return Expr(new Apply(rator, rands));
     }
-    if (primitives.count(op) != 0) {//whether in primitive map//here we need: expt;cons, car, ...; and so many...
+    if (primitives.count(op) != 0) {//a primitive
         vector<Expr> parameters;
-        //TODO: TO COMPLETE THE PARAMETER PARSER LOGIC
-        for (int i = 1; i < stxs.size(); i++){//call the corresponding parse?
-            parameters.push_back(stxs[i]->parse(env));//for and or, shouldn't throw, do parse shouldn't check
-        }//so rational should check and division shouldn't check before evaluation?
-        //other types of illegal?let's see OJ
+        //TO COMPLETE THE PARAMETER PARSER LOGIC
+        for (int i = 1; i < stxs.size(); i++){//call the corresponding parse
+            parameters.push_back(stxs[i]->parse(env));
+        }
         ExprType op_type = primitives[op];
         if (op_type == E_PLUS) {
             if (parameters.size() == 2) {
@@ -294,9 +304,9 @@ Expr List::parse(Assoc &env) {
             throw RuntimeError("Unknown primitive : " + op);
         }
     }
-    if (reserved_words.count(op) != 0) {
+    if (reserved_words.count(op) != 0) {//a reserved word
     	switch (reserved_words[op]) {
-			//TODO: TO COMPLETE THE reserve_words PARSER LOGIC
+			//TO COMPLETE THE reserve_words PARSER LOGIC
             case E_QUOTE:{
                 if (stxs.size() == 2){
                     return Expr(new Quote(stxs[1]));
@@ -476,12 +486,12 @@ Expr List::parse(Assoc &env) {
     }
 
     //default: use Apply to be an expression
-    //TODO: TO COMPLETE THE PARSER LOGIC
+    //TO COMPLETE THE PARSER LOGIC
     Expr rator = stxs[0]->parse(env);
     vector<Expr> rands;
     for (int i = 1; i < stxs.size(); i++){
         rands.push_back(stxs[i]->parse(env));
     }
     return Expr(new Apply(rator, rands));
-}
+}//else
 }

@@ -57,7 +57,12 @@ Value Binary::eval(Assoc &e) { // evaluation of two-operators primitive
 }
 
 Value Variadic::eval(Assoc &e) { // evaluation of multi-operator primitive
-    // TODO: TO COMPLETE THE VARIADIC CLASS
+    //TO COMPLETE THE VARIADIC CLASS
+    std::vector<Value> evaled_rands;
+    for (int i = 0; i < rands.size(); i++) {
+        evaled_rands.push_back(rands[i]->eval(e));
+    }
+    return evalRator(evaled_rands);
 }
 
 //helper function to check whether a string can be converted to number
@@ -72,17 +77,16 @@ bool toNumber(const std::string &s) {
 }
 Value Var::eval(Assoc &e) { // evaluation of variable
     //TO identify the invalid variable
-    // We request all valid variable just need to be a symbol,you should promise:
+    //We request all valid variable just need to be a symbol,you should promise:
     //The first character of a variable name cannot be a digit or any character from the set: {.@}
     //If a string can be recognized as a number, it will be prioritized as a number. For example: 1, -1, +123, .123, +124., 1e-3
-        //std::stod(str, pos)(size_t (sizetype))(pos default = 0)(& so that can modify)!!!
     //Variable names can overlap with primitives and reserve_words
     //Variable names can contain any non-whitespace characters except #, ', ", `, but the first character cannot be a digit
     //When a variable is not defined in the current scope, your interpreter should output RuntimeError
     if (toNumber(x)) {
         throw RuntimeError("Invalid variable name");
     }
-    if ((x[0] >= '0' && x[0] <= '9') || x[0] == '.' || x[0] == '@') {//!ASCII
+    if ((x[0] >= '0' && x[0] <= '9') || x[0] == '.' || x[0] == '@') {
         throw RuntimeError("Invalid variable name");
     }
     for (char c : x) {
@@ -92,13 +96,13 @@ Value Var::eval(Assoc &e) { // evaluation of variable
     }
 
     Value matched_value = find(x, e);
-    if (matched_value.get() == nullptr) {
-        if (primitives.count(x)) {//procedure how to achieve self-defining???
+    if (matched_value.get() == nullptr) {//no binding found
+        if (primitives.count(x)) {
              static std::map<ExprType, std::pair<Expr, std::vector<std::string>>> primitive_map = {
                     {E_VOID,     {Expr(new MakeVoid()), {}}},
                     {E_EXIT,     {Expr(new Exit()), {}}},
-                    {E_BOOLQ,    {Expr(new IsBoolean(Expr(new Var("parm")))), {"parm"}}},//is this an expression?
-                    {E_INTQ,     {Expr(new IsFixnum(Expr(new Var("parm")))), {"parm"}}},//constructor, and eval
+                    {E_BOOLQ,    {Expr(new IsBoolean(Expr(new Var("parm")))), {"parm"}}},//parameters of procedure is a vector of string
+                    {E_INTQ,     {Expr(new IsFixnum(Expr(new Var("parm")))), {"parm"}}},
                     {E_NULLQ,    {Expr(new IsNull(Expr(new Var("parm")))), {"parm"}}},
                     {E_PAIRQ,    {Expr(new IsPair(Expr(new Var("parm")))), {"parm"}}},
                     {E_PROCQ,    {Expr(new IsProcedure(Expr(new Var("parm")))), {"parm"}}},
@@ -112,7 +116,7 @@ Value Var::eval(Assoc &e) { // evaluation of variable
                     {E_DIV,      {Expr(new DivVar({})), {}}},
                     {E_MODULO,   {Expr(new Modulo(Expr(new Var("parm1")), Expr(new Var("parm2")))), {"parm1","parm2"}}},
                     {E_EXPT,     {Expr(new Expt(Expr(new Var("parm1")), Expr(new Var("parm2")))), {"parm1","parm2"}}},
-                    {E_EQQ,      {Expr(new EqualVar({})), {}}},//var is better, because vector constructor
+                    {E_EQQ,      {Expr(new EqualVar({})), {}}},//use var is better, because vector constructor
                     {E_LT,       {Expr(new LessVar({})), {}}},
                     {E_LE,       {Expr(new LessEqVar({})), {}}},
                     {E_EQ,       {Expr(new EqualVar({})), {}}},
@@ -128,19 +132,16 @@ Value Var::eval(Assoc &e) { // evaluation of variable
                     {E_AND,      {Expr(new AndVar({})), {}}},
                     {E_OR,       {Expr(new OrVar({})), {}}}
             };
-            //LEARN PROCEDURE & APPLY
-            //what if it is a function name???
             auto it = primitive_map.find(primitives[x]);
             //to PASS THE parameters correctly;
             //COMPLETE THE CODE WITH THE HINT IN IF SENTENCE WITH CORRECT RETURN VALUE
             if (it != primitive_map.end()) {
-                //
                 return ProcedureV(it->second.second, it->second.first, empty());//no need of env
             }
       }
       throw RuntimeError("Undefined variable");
     }
-    return matched_value;//function is the same
+    return matched_value;
 }
 
 Value Plus::evalRator(const Value &rand1, const Value &rand2) { // +
@@ -826,9 +827,9 @@ Value Apply::eval(Assoc &e) {
         args.push_back(rands[i]->eval(e));
     }
     if (auto varNode = dynamic_cast<Variadic*>(clos_ptr->e.get())) {
-        //TODO
-        return varNode->evalRator(args);//??????????1.meaning2.other like +, and go back to check
-    }//recheck after finishing variadic class
+        //expr is variadic, which doesn't have certain number of parameters
+        return varNode->evalRator(args);
+    }
     if (args.size() != clos_ptr->parameters.size()) throw RuntimeError("Wrong number of arguments");
     
     //TO COMPLETE THE PARAMETERS' ENVIRONMENT LOGIC
