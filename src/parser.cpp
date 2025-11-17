@@ -61,7 +61,7 @@ Expr FalseSyntax::parse(Assoc &env) {
 
 Expr List::parse(Assoc &env) {
     if (stxs.empty()) {
-        return Expr(new Quote(Syntax(new List())));//空表的quote, parameters???
+        return Expr(new Quote(Syntax(new List())));
     }
 
     //check if the first element is a symbol
