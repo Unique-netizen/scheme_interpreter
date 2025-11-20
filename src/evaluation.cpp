@@ -738,6 +738,17 @@ Value Quote::eval(Assoc& e) {
         return StringV(p->s);
     } else if (auto p = dynamic_cast<List*>(s.get())) {
         Value pointer = NullV();
+        if(p->stxs.size()>=3){
+            Syntax dot = (p->stxs)[(p->stxs).size() - 2];
+            auto whetherdot = dynamic_cast<SymbolSyntax*>(dot.get());
+            if(whetherdot != nullptr && whetherdot->s == "."){
+                pointer = Quote((p->stxs)[(p->stxs).size() - 1]).eval(e);
+            }
+            for (int i = (p->stxs).size() - 3; i >= 0; i--){
+                pointer = PairV(Quote((p->stxs)[i]).eval(e), pointer);
+            }
+            return pointer;
+        }
         for (int i = (p->stxs).size() - 1; i >= 0; i--){
             pointer = PairV(Quote((p->stxs)[i]).eval(e), pointer);
         }
