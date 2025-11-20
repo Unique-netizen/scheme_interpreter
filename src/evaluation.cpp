@@ -819,7 +819,8 @@ Value Apply::eval(Assoc &e) {
     if (rator->eval(e)->v_type != V_PROC) {throw RuntimeError("Attempt to apply a non-procedure");}
 
     //TO COMPLETE THE CLOSURE LOGIC
-    Procedure* clos_ptr = dynamic_cast<Procedure*>(rator->eval(e).get());
+    Value r = rator->eval(e);
+    Procedure* clos_ptr = dynamic_cast<Procedure*>(r.get());
     
     //TO COMPLETE THE ARGUMENT PARSER LOGIC
     std::vector<Value> args;
