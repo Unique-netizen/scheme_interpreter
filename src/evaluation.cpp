@@ -25,6 +25,9 @@ Value Fixnum::eval(Assoc &e) { // evaluation of a fixnum
 }
 
 Value RationalNum::eval(Assoc &e) { // evaluation of a rational number
+    if (denominator == 0) {
+        throw RuntimeError("Denominator cannot be zero");
+    }
     return RationalV(numerator, denominator);
 }
 

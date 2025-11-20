@@ -37,9 +37,6 @@ Expr Number::parse(Assoc &env) {
 
 Expr RationalSyntax::parse(Assoc &env) { 
     //complete the rational parser
-    if (denominator == 0) {
-        throw RuntimeError("Denominator cannot be zero");
-    }
     return Expr(new RationalNum(numerator, denominator));
 }
 
