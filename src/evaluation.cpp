@@ -142,7 +142,7 @@ Value Var::eval(Assoc &e) { // evaluation of variable
                 return ProcedureV(it->second.second, it->second.first, empty());//no need of env
             }
       }
-      throw RuntimeError("Undefined variable");
+      throw RuntimeError("Undefined variable:" +  x);
     }
     return matched_value;
 }
@@ -862,6 +862,30 @@ Value Apply::eval(Assoc &e) {
     Assoc param_env = clos_ptr->env;
     for (int i = 0; i < args.size(); i++){
         param_env = extend(clos_ptr->parameters[i], args[i], param_env);
+    }
+    
+    //deal with multiple define
+    try{
+        Value v_try = clos_ptr->e->eval(param_env);;
+    }catch(const RuntimeError& error){
+        std::string message = error.message();
+        int pos = message.find(':');
+        if(pos != std::string::npos){
+            std::string before = message.substr(0, pos);
+            std::string after = message.substr(pos+1);
+            if(before == "Undefined variable"){
+                Value found = find(after, e);
+                auto v_found = found.get();
+                if(v_found != nullptr){
+                    Assoc new_closer_env = extend(after, v_found, clos_ptr->env);
+                    clos_ptr = new Procedure(clos_ptr->parameters, clos_ptr->e, new_closer_env);//another way once and for all?
+                    param_env = clos_ptr->env;
+                    for (int i = 0; i < args.size(); i++){
+                        param_env = extend(clos_ptr->parameters[i], args[i], param_env);
+                    }
+                }
+            }
+        }
     }
 
     return clos_ptr->e->eval(param_env);
