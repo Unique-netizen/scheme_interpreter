@@ -358,6 +358,7 @@ Expr List::parse(Assoc &env) {
                     }
                     clauses.push_back(clause_expr);
                 }
+                return Expr(new Cond(clauses));
             }
             case E_LAMBDA:{
                 if (stxs.size() >= 3){

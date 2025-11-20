@@ -743,13 +743,23 @@ Value Quote::eval(Assoc& e) {
             auto whetherdot = dynamic_cast<SymbolSyntax*>(dot.get());
             if(whetherdot != nullptr && whetherdot->s == "."){
                 pointer = Quote((p->stxs)[(p->stxs).size() - 1]).eval(e);
+                for (int i = (p->stxs).size() - 3; i >= 0; i--){
+                    Syntax d = (p->stxs)[i];
+                    auto w = dynamic_cast<SymbolSyntax*>(d.get());
+                    if(w != nullptr && w->s == "."){
+                        throw RuntimeError("Invalid '.' in quote");
+                    }
+                    pointer = PairV(Quote((p->stxs)[i]).eval(e), pointer);
+                }
+                return pointer;
             }
-            for (int i = (p->stxs).size() - 3; i >= 0; i--){
-                pointer = PairV(Quote((p->stxs)[i]).eval(e), pointer);
-            }
-            return pointer;
         }
         for (int i = (p->stxs).size() - 1; i >= 0; i--){
+            Syntax d = (p->stxs)[i];
+            auto w = dynamic_cast<SymbolSyntax*>(d.get());
+            if(w != nullptr && w->s == "."){
+                throw RuntimeError("Invalid '.' in quote");
+            }
             pointer = PairV(Quote((p->stxs)[i]).eval(e), pointer);
         }
         return pointer;
