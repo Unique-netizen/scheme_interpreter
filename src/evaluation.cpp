@@ -896,10 +896,16 @@ Value Letrec::eval(Assoc &env) {
     for (int i = 0; i < bind.size(); i++) {
         env1 = extend(bind[i].first, Value(nullptr), env1);
     }
+    //if we modify env1, later will know the former(already evaled)
+    Assoc env2 = env;
     for (int i = 0; i < bind.size(); i++) {
-        modify(bind[i].first, bind[i].second->eval(env1), env1);
+        env2 = extend(bind[i].first, bind[i].second->eval(env1), env2);
     }
-    return body->eval(env1);
+    //modify env1 in case of procedure
+    for (int i = 0; i < bind.size(); i++) {
+        modify(bind[i].first, find(bind[i].first, env2), env1);
+    }
+    return body->eval(env2);
 }
 
 Value Set::eval(Assoc &env) {
