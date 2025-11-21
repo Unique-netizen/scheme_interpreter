@@ -892,6 +892,8 @@ Value Apply::eval(Assoc &e) {
                 }
             }
         }
+    }catch(...){
+        throw;
     }
 
 }
