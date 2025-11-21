@@ -870,7 +870,7 @@ Value Apply::eval(Assoc &e) {
     //for mutual recursion
     //if throw, find in the outer env, renew procedure's env, renew binding
     try{
-        Value v_try = clos_ptr->e->eval(param_env);;
+        return clos_ptr->e->eval(param_env);
     }catch(const RuntimeError& error){
         std::string message = error.message();
         int pos = message.find(':');
@@ -894,8 +894,6 @@ Value Apply::eval(Assoc &e) {
         }
     }
 
-
-    return clos_ptr->e->eval(param_env);
 }
 
 Value Define::eval(Assoc &env) {
