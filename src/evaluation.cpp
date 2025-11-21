@@ -867,6 +867,33 @@ Value Apply::eval(Assoc &e) {
     for (int i = 0; i < args.size(); i++){
         param_env = extend(clos_ptr->parameters[i], args[i], param_env);
     }
+    //for mutual recursion
+    //if throw, find in the outer env, renew procedure's env, renew binding
+    try{
+        Value v_try = clos_ptr->e->eval(param_env);;
+    }catch(const RuntimeError& error){
+        std::string message = error.message();
+        int pos = message.find(':');
+        if(pos != std::string::npos){
+            std::string before = message.substr(0, pos);
+            std::string after = message.substr(pos+1);
+            if(before == "Undefined variable"){
+                Value found = find(after, e);
+                auto v_found = found.get();
+                auto rator_ptr = dynamic_cast<Var*>(rator.get());
+                if(rator_ptr && v_found){
+                    Value new_binding = ProcedureV(clos_ptr->parameters, clos_ptr->e, e);
+                    modify(rator_ptr->x, new_binding, e);
+                    Assoc param_env = e;
+                    for (int i = 0; i < args.size(); i++){
+                        param_env = extend(clos_ptr->parameters[i], args[i], param_env);
+                    }
+                    return clos_ptr->e->eval(param_env);
+                }
+            }
+        }
+    }
+
 
     return clos_ptr->e->eval(param_env);
 }
@@ -883,7 +910,7 @@ Value Let::eval(Assoc &env) {
     //create new env
     Assoc let_env = env;
     for (int i = 0; i < bind.size(); i++){
-        //checkName(bind[i].first);
+        checkName(bind[i].first);
         let_env = extend(bind[i].first, bind[i].second->eval(env), let_env);
     }
     
