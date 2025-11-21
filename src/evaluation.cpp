@@ -883,7 +883,7 @@ Value Let::eval(Assoc &env) {
     //create new env
     Assoc let_env = env;
     for (int i = 0; i < bind.size(); i++){
-        checkName(bind[i].first);
+        //checkName(bind[i].first);
         let_env = extend(bind[i].first, bind[i].second->eval(env), let_env);
     }
     
