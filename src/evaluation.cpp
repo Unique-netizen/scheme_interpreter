@@ -78,14 +78,8 @@ bool toNumber(const std::string &s) {
         return false;
     }
 }
-Value Var::eval(Assoc &e) { // evaluation of variable
-    //TO identify the invalid variable
-    //We request all valid variable just need to be a symbol,you should promise:
-    //The first character of a variable name cannot be a digit or any character from the set: {.@}
-    //If a string can be recognized as a number, it will be prioritized as a number. For example: 1, -1, +123, .123, +124., 1e-3
-    //Variable names can overlap with primitives and reserve_words
-    //Variable names can contain any non-whitespace characters except #, ', ", `, but the first character cannot be a digit
-    //When a variable is not defined in the current scope, your interpreter should output RuntimeError
+//helper function to check var's name
+void checkName(const std::string &x){
     if (toNumber(x)) {
         throw RuntimeError("Invalid variable name");
     }
@@ -97,6 +91,16 @@ Value Var::eval(Assoc &e) { // evaluation of variable
             throw RuntimeError("Invalid variable name");
         }
     }
+}
+Value Var::eval(Assoc &e) { // evaluation of variable
+    //TO identify the invalid variable
+    //We request all valid variable just need to be a symbol,you should promise:
+    //The first character of a variable name cannot be a digit or any character from the set: {.@}
+    //If a string can be recognized as a number, it will be prioritized as a number. For example: 1, -1, +123, .123, +124., 1e-3
+    //Variable names can overlap with primitives and reserve_words
+    //Variable names can contain any non-whitespace characters except #, ', ", `, but the first character cannot be a digit
+    //When a variable is not defined in the current scope, your interpreter should output RuntimeError
+    checkName(x);
 
     Value matched_value = find(x, e);
     if (matched_value.get() == nullptr) {//no binding found
@@ -104,7 +108,7 @@ Value Var::eval(Assoc &e) { // evaluation of variable
              static std::map<ExprType, std::pair<Expr, std::vector<std::string>>> primitive_map = {
                     {E_VOID,     {Expr(new MakeVoid()), {}}},
                     {E_EXIT,     {Expr(new Exit()), {}}},
-                    {E_BOOLQ,    {Expr(new IsBoolean(Expr(new Var("parm")))), {"parm"}}},//parameters of procedure is a vector of string
+                    {E_BOOLQ,    {Expr(new IsBoolean(Expr(new Var("parm")))), {"parm"}}},//parameters of procedure is a vector of string(name)
                     {E_INTQ,     {Expr(new IsFixnum(Expr(new Var("parm")))), {"parm"}}},
                     {E_NULLQ,    {Expr(new IsNull(Expr(new Var("parm")))), {"parm"}}},
                     {E_PAIRQ,    {Expr(new IsPair(Expr(new Var("parm")))), {"parm"}}},
@@ -113,13 +117,13 @@ Value Var::eval(Assoc &e) { // evaluation of variable
                     {E_LISTQ,    {Expr(new IsList(Expr(new Var("parm")))), {"parm"}}},
                     {E_STRINGQ,  {Expr(new IsString(Expr(new Var("parm")))), {"parm"}}},
                     {E_DISPLAY,  {Expr(new Display(Expr(new Var("parm")))), {"parm"}}},
-                    {E_PLUS,     {Expr(new PlusVar({})), {}}},
+                    {E_PLUS,     {Expr(new PlusVar({})), {}}},//varnode in apply
                     {E_MINUS,    {Expr(new MinusVar({})), {}}},
                     {E_MUL,      {Expr(new MultVar({})), {}}},
                     {E_DIV,      {Expr(new DivVar({})), {}}},
                     {E_MODULO,   {Expr(new Modulo(Expr(new Var("parm1")), Expr(new Var("parm2")))), {"parm1","parm2"}}},
                     {E_EXPT,     {Expr(new Expt(Expr(new Var("parm1")), Expr(new Var("parm2")))), {"parm1","parm2"}}},
-                    {E_EQQ,      {Expr(new EqualVar({})), {}}},//use var is better, because vector constructor
+                    {E_EQQ,      {Expr(new EqualVar({})), {}}},
                     {E_LT,       {Expr(new LessVar({})), {}}},
                     {E_LE,       {Expr(new LessEqVar({})), {}}},
                     {E_EQ,       {Expr(new EqualVar({})), {}}},
@@ -139,7 +143,7 @@ Value Var::eval(Assoc &e) { // evaluation of variable
             //to PASS THE parameters correctly;
             //COMPLETE THE CODE WITH THE HINT IN IF SENTENCE WITH CORRECT RETURN VALUE
             if (it != primitive_map.end()) {
-                return ProcedureV(it->second.second, it->second.first, empty());//no need of env
+                return ProcedureV(it->second.second, it->second.first, e);
             }
       }
       throw RuntimeError("Undefined variable:" +  x);
@@ -863,30 +867,6 @@ Value Apply::eval(Assoc &e) {
     for (int i = 0; i < args.size(); i++){
         param_env = extend(clos_ptr->parameters[i], args[i], param_env);
     }
-    
-    //deal with multiple define
-    try{
-        Value v_try = clos_ptr->e->eval(param_env);;
-    }catch(const RuntimeError& error){
-        std::string message = error.message();
-        int pos = message.find(':');
-        if(pos != std::string::npos){
-            std::string before = message.substr(0, pos);
-            std::string after = message.substr(pos+1);
-            if(before == "Undefined variable"){
-                Value found = find(after, e);
-                auto v_found = found.get();
-                if(v_found != nullptr){
-                    Assoc new_closer_env = extend(after, v_found, clos_ptr->env);
-                    clos_ptr = new Procedure(clos_ptr->parameters, clos_ptr->e, new_closer_env);//another way once and for all?
-                    param_env = clos_ptr->env;
-                    for (int i = 0; i < args.size(); i++){
-                        param_env = extend(clos_ptr->parameters[i], args[i], param_env);
-                    }
-                }
-            }
-        }
-    }
 
     return clos_ptr->e->eval(param_env);
 }
@@ -903,6 +883,7 @@ Value Let::eval(Assoc &env) {
     //create new env
     Assoc let_env = env;
     for (int i = 0; i < bind.size(); i++){
+        checkName(bind[i].first);
         let_env = extend(bind[i].first, bind[i].second->eval(env), let_env);
     }
     

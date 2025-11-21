@@ -439,6 +439,26 @@ Expr List::parse(Assoc &env) {
                 //stxs[2...]: body
                 vector<Expr> es;
                 for (int i = 2; i < stxs.size(); i++){
+                    if(auto p = dynamic_cast<List*>(stxs[i].get())){
+                        if(auto fst = dynamic_cast<SymbolSyntax*>((p->stxs)[0].get())){
+                            bool found = false;
+                            for(int j = 0; j < bind.size(); j++){
+                                if(bind[j].first == (fst->s)){
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if(found){
+                                Expr Arator = Expr(new Var(fst->s));
+                                vector<Expr> Arand;
+                                for (int j = 1; j < (p->stxs).size(); j++){
+                                    Arand.push_back((p->stxs)[j]->parse(env));
+                                }
+                                es.push_back(Expr(new Apply(Arator, Arand))); 
+                                continue;                               
+                            }
+                        }
+                    }
                     es.push_back(stxs[i]->parse(env));
                 }
                 return Expr(new Let(bind, Expr(new Begin(es))));
