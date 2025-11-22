@@ -898,6 +898,7 @@ Value Apply::eval(Assoc &e) {
 }
 
 Value Define::eval(Assoc &env) {
+    checkName(var);
     env = extend(var, Value(nullptr), env);
     Value v = e->eval(env);
     modify(var, v, env);
