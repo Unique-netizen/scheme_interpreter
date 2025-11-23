@@ -921,6 +921,7 @@ Value Letrec::eval(Assoc &env) {
     //To complete the letrec logic
     Assoc env1 = env;
     for (int i = 0; i < bind.size(); i++) {
+        checkName(bind[i].first);
         env1 = extend(bind[i].first, Value(nullptr), env1);
     }
     //if we modify env1, later will know the former(already evaled)
