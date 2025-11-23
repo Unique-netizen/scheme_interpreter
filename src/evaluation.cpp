@@ -886,7 +886,7 @@ Value Apply::eval(Assoc &e) {
                 auto v_found = found.get();
                 auto rator_ptr = dynamic_cast<Var*>(rator.get());
                 if(rator_ptr && v_found){
-                    Assco new_env = extend(after, found, clos_ptr->env);
+                    Assoc new_env = extend(after, found, clos_ptr->env);
                     Value new_binding = ProcedureV(clos_ptr->parameters, clos_ptr->e, new_env);
                     modify(rator_ptr->x, new_binding, global_env);
                     Assoc param_env = new_env;
