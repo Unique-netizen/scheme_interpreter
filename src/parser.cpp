@@ -75,7 +75,7 @@ Expr List::parse(Assoc &env) {
         return Expr(new Apply(rator, rand));
     }else{
     string op = id->s;
-    if (find(op, env).get() != nullptr) {//a var(a function)
+    if (find(op, env).get() != nullptr) {//a var(a function)(can be used for shadow)
         //TO COMPLETE THE PARAMETER PARSER LOGIC
         Expr rator = stxs[0]->parse(env);
         vector<Expr> rand;
@@ -359,6 +359,7 @@ Expr List::parse(Assoc &env) {
             }
             case E_LAMBDA:{
                 if (stxs.size() >= 3){
+                    Assoc lambda_parse_env = env;
                     //stxs[1]: parameter list. 
                     vector<string> x;
                     List* param_list = dynamic_cast<List*>(stxs[1].get());
@@ -367,11 +368,12 @@ Expr List::parse(Assoc &env) {
                         SymbolSyntax* p = dynamic_cast<SymbolSyntax*>(param_list->stxs[i].get());
                         if (p == nullptr) throw RuntimeError("Wrong type of parameter");
                         x.push_back(p->s);
+                        lambda_parse_env = extend(p->s, VoidV(), lambda_parse_env);
                     }
                     //stxs[2...]: procedure
                     vector<Expr> es;
                     for (int i = 2; i < stxs.size(); i++){
-                        es.push_back(stxs[i]->parse(env));
+                        es.push_back(stxs[i]->parse(lambda_parse_env));
                     }
 
                     return Expr(new Lambda(x, Expr(new Begin(es))));
@@ -421,6 +423,7 @@ Expr List::parse(Assoc &env) {
             }
             case E_LET:{
                 if (stxs.size() < 3) throw RuntimeError("Wrong number of arguments for let");
+                Assoc let_parse_env = env;
                 //stxs[1]: bind
                 List* bind_list = dynamic_cast<List*>(stxs[1].get());
                 if (bind_list == nullptr) throw RuntimeError("Wrong type of binding list in let");
@@ -435,36 +438,18 @@ Expr List::parse(Assoc &env) {
                     string var = p_var->s;
                     Expr e = bind_pair->stxs[1]->parse(env);
                     bind.push_back({var, e});
+                    let_parse_env = extend(var, VoidV(), let_parse_env);
                 }
                 //stxs[2...]: body
                 vector<Expr> es;
                 for (int i = 2; i < stxs.size(); i++){
-                    if(auto p = dynamic_cast<List*>(stxs[i].get())){
-                        if(auto fst = dynamic_cast<SymbolSyntax*>((p->stxs)[0].get())){
-                            bool found = false;
-                            for(int j = 0; j < bind.size(); j++){
-                                if(bind[j].first == (fst->s)){
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if(found){
-                                Expr Arator = Expr(new Var(fst->s));
-                                vector<Expr> Arand;
-                                for (int j = 1; j < (p->stxs).size(); j++){
-                                    Arand.push_back((p->stxs)[j]->parse(env));
-                                }
-                                es.push_back(Expr(new Apply(Arator, Arand))); 
-                                continue;                               
-                            }
-                        }
-                    }
-                    es.push_back(stxs[i]->parse(env));
+                    es.push_back(stxs[i]->parse(let_parse_env));
                 }
                 return Expr(new Let(bind, Expr(new Begin(es))));
             }
             case E_LETREC:{
                 if (stxs.size() < 3) throw RuntimeError("Wrong number of arguments for letrec");
+                Assoc letrec_parse_env = env;
                 //stxs[1]: bind
                 List* bind_list = dynamic_cast<List*>(stxs[1].get());
                 if (bind_list == nullptr) throw RuntimeError("Wrong type of binding list in letrec");
@@ -479,11 +464,12 @@ Expr List::parse(Assoc &env) {
                     string var = p_var->s;
                     Expr e = bind_pair->stxs[1]->parse(env);
                     bind.push_back({var, e});
+                    letrec_parse_env = extend(var, VoidV(), letrec_parse_env);
                 }
                 //stxs[2...]: body
                 vector<Expr> es;
                 for (int i = 2; i < stxs.size(); i++){
-                    es.push_back(stxs[i]->parse(env));
+                    es.push_back(stxs[i]->parse(letrec_parse_env));
                 }
                 return Expr(new Letrec(bind, Expr(new Begin(es))));
             }
