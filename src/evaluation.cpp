@@ -876,7 +876,7 @@ Value Define::eval(Assoc &env) {
     env = extend(var, Value(nullptr), env);
     Value v = e->eval(env);
     modify(var, v, env);
-    modifyProcedure(env);
+    //modifyProcedure(env);
     return VoidV();
 }
 
