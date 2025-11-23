@@ -380,17 +380,13 @@ Expr List::parse(Assoc &env) {
                 }
             }
             case E_DEFINE:{
-                if (stxs.size() >= 3) {
+                if (stxs.size() == 3) {
                     if (auto p = dynamic_cast<SymbolSyntax*>(stxs[1].get())){
                         string var = p->s;
                         if (primitives.count(var) || reserved_words.count(var)) {
                             throw RuntimeError("Invalid variable name in define");
                         }
-                        vector<Expr> es;
-                        for (int i = 2; i < stxs.size(); i++){
-                            es.push_back(stxs[i]->parse(env));
-                        }
-                        Expr e = Expr(new Begin(es));
+                        Expr e = stxs[2]->parse(env);
                         return Expr(new Define(var, e));
                     } else if (auto p = dynamic_cast<List*>(stxs[1].get())) {
                         //turn the simple form into name and lambda
@@ -406,11 +402,7 @@ Expr List::parse(Assoc &env) {
                             if (p_param == nullptr) throw RuntimeError("Invalid parameter name in define");
                             x.push_back(p_param->s);
                         }
-                        vector<Expr> es;
-                        for (int i = 2; i < stxs.size(); i++){
-                            es.push_back(stxs[i]->parse(env));
-                        }
-                        Expr e = Expr(new Begin(es));
+                        Expr e = stxs[2]->parse(env);
                         return Expr(new Define(name, Expr(new Lambda(x, e))));
                     } else {
                         throw RuntimeError("Wrong type of variable in define");
