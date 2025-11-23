@@ -88,6 +88,16 @@ Value find(const std::string &x, Assoc &l) {
     }
     return Value(nullptr);
 }
+//for mutual recursion, find Procedure and modify its env
+void modifyProcedure(Assoc &l){
+    for (auto i = l; i.get() != nullptr; i = i->next) {
+        if (i->v->v_type == V_PROC) {
+            auto p = dynamic_cast<Procedure*>((i->v).get());
+            Value new_value = ProcedureV(p->parameters, p->e, l);
+            modify(i->x, new_value, l);
+        }
+    }
+}
 
 // ============================================================================
 // Simple Value Types Implementation
