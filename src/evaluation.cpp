@@ -20,6 +20,8 @@
 extern std::map<std::string, ExprType> primitives;
 extern std::map<std::string, ExprType> reserved_words;
 
+extern Assoc global_env;
+
 Value Fixnum::eval(Assoc &e) { // evaluation of a fixnum
     return IntegerV(n);
 }
@@ -868,7 +870,37 @@ Value Apply::eval(Assoc &e) {
         param_env = extend(clos_ptr->parameters[i], args[i], param_env);
     }
 
-    return clos_ptr->e->eval(param_env);
+    try{
+        return clos_ptr->e->eval(param_env);
+    }catch(const RuntimeError& error){
+        if(auto p_rator = dynamic_cast<Var*>(rator.get())){
+        Value v_rator = find(p_rator->x, global_env);
+        if(v_rator.get() != nullptr){
+        std::string message = error.message();
+        int pos = message.find(':');
+        if(pos != std::string::npos){
+            std::string before = message.substr(0, pos);
+            std::string after = message.substr(pos+1);
+            if(before == "Undefined variable"){
+                Value found = find(after, global_env);
+                auto v_found = found.get();
+                auto rator_ptr = dynamic_cast<Var*>(rator.get());
+                if(rator_ptr && v_found){
+                    Assco new_env = extend(after, found, clos_ptr->env);
+                    Value new_binding = ProcedureV(clos_ptr->parameters, clos_ptr->e, new_env);
+                    modify(rator_ptr->x, new_binding, global_env);
+                    Assoc param_env = new_env;
+                    for (int i = 0; i < args.size(); i++){
+                        param_env = extend(clos_ptr->parameters[i], args[i], param_env);
+                    }
+                    return clos_ptr->e->eval(param_env);
+                }
+            }
+        }
+    }
+    }
+        throw;
+    }
 }
 
 Value Define::eval(Assoc &env) {
@@ -876,7 +908,6 @@ Value Define::eval(Assoc &env) {
     env = extend(var, Value(nullptr), env);
     Value v = e->eval(env);
     modify(var, v, env);
-    //modifyProcedure(env);
     return VoidV();
 }
 
