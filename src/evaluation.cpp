@@ -846,10 +846,10 @@ Value Lambda::eval(Assoc &env) {
 }
 
 Value Apply::eval(Assoc &e) {
-    if (rator->eval(e)->v_type != V_PROC) {throw RuntimeError("Attempt to apply a non-procedure");}
+    Value r = rator->eval(e);
+    if (r->v_type != V_PROC) {throw RuntimeError("Attempt to apply a non-procedure");}
 
     //TO COMPLETE THE CLOSURE LOGIC
-    Value r = rator->eval(e);
     Procedure* clos_ptr = dynamic_cast<Procedure*>(r.get());
     
     //TO COMPLETE THE ARGUMENT PARSER LOGIC
@@ -885,7 +885,7 @@ Value Apply::eval(Assoc &e) {
                 Value found = find(after, global_env);
                 auto v_found = found.get();
                 if(v_found != nullptr){
-                    Assoc new_closer_env = extend(after, v_found, clos_ptr->env);
+                    Assoc new_closer_env = extend(after, found, clos_ptr->env);
                     modify(p_rator->x, ProcedureV(clos_ptr->parameters, clos_ptr->e, new_closer_env), global_env);
                     param_env = new_closer_env;
                     for (int i = 0; i < args.size(); i++){
