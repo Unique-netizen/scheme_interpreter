@@ -864,40 +864,36 @@ Value Apply::eval(Assoc &e) {
     if (args.size() != clos_ptr->parameters.size()) throw RuntimeError("Wrong number of arguments");
     
     //TO COMPLETE THE PARAMETERS' ENVIRONMENT LOGIC
-    Assoc param_env = clos_ptr->env;
-    for (int i = 0; i < args.size(); i++){
-        param_env = extend(clos_ptr->parameters[i], args[i], param_env);
-    }
+    Assoc current_closure_env = clos_ptr->env;
 
-    try{
-        return clos_ptr->e->eval(param_env);
-    }catch(const RuntimeError& error){
-        auto p_rator = dynamic_cast<Var*>(rator.get());
-        if(p_rator){
-            Value rator_found = find(p_rator->x, global_env);
-            if(rator_found.get() != nullptr){
-                std::string message = error.message();
-                int pos = message.find(':');
-        if(pos != std::string::npos){
-            std::string before = message.substr(0, pos);
-            std::string after = message.substr(pos+1);
-            if(before == "Undefined variable"){
-                Value found = find(after, global_env);
-                auto v_found = found.get();
-                if(v_found != nullptr){
-                    Assoc new_closer_env = extend(after, found, clos_ptr->env);
-                    modify(p_rator->x, ProcedureV(clos_ptr->parameters, clos_ptr->e, new_closer_env), global_env);
-                    param_env = new_closer_env;
-                    for (int i = 0; i < args.size(); i++){
-                        param_env = extend(clos_ptr->parameters[i], args[i], param_env);
-                    }
-                    return clos_ptr->e->eval(param_env);
-                }
-            }
-        }                
-            }
+    while (true) {
+        Assoc param_env = current_closure_env;
+        for (int i = 0; i < args.size(); i++){
+            param_env = extend(clos_ptr->parameters[i], args[i], param_env);
         }
-        throw;
+
+        try{
+            return clos_ptr->e->eval(param_env);
+        }catch(const RuntimeError& error){
+            std::string message = error.message();
+            const std::string prefix = "Undefined variable:";
+            if (message.rfind(prefix, 0) == 0) {
+                std::string missing = message.substr(prefix.size());
+
+                Value found = find(missing, global_env);
+                if (found.get() == nullptr) {
+                    throw;
+                }
+
+                current_closure_env = extend(missing, found, current_closure_env);
+
+                if (auto p_rator = dynamic_cast<Var*>(rator.get())) {
+                    modify(p_rator->x, ProcedureV(clos_ptr->parameters, clos_ptr->e, current_closure_env), global_env);
+                }
+                continue;
+            }
+            throw;
+        }
     }
 }
 
