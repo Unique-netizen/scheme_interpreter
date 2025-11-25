@@ -20,7 +20,6 @@
 extern std::map<std::string, ExprType> primitives;
 extern std::map<std::string, ExprType> reserved_words;
 
-extern Assoc global_env;
 
 Value Fixnum::eval(Assoc &e) { // evaluation of a fixnum
     return IntegerV(n);
@@ -864,43 +863,37 @@ Value Apply::eval(Assoc &e) {
     if (args.size() != clos_ptr->parameters.size()) throw RuntimeError("Wrong number of arguments");
     
     //TO COMPLETE THE PARAMETERS' ENVIRONMENT LOGIC
-    for (auto i = clos_ptr->env; i.get() != nullptr; i = i->next) {
-        Value v = find(i->x, global_env);
-        if(v.get() != nullptr){
-            modify(i->x, v, clos_ptr->env);
-        }
-    }
-
     Assoc param_env = clos_ptr->env;
     for (int i = 0; i < args.size(); i++){
         param_env = extend(clos_ptr->parameters[i], args[i], param_env);
     }
 
-    while(true){
-        try{
-            return clos_ptr->e->eval(param_env);
-        }catch(const RuntimeError& error){
-            auto p_rator = dynamic_cast<Var*>(rator.get());
-            if(!p_rator) throw;
-            Value v_rator = find(p_rator->x, global_env);
-            if(!v_rator.get()) throw;
-            std::string message = error.message();
-            const std::string prefix = "Undefined variable:";
-            if (message.find(prefix) != 0) throw;
-            std::string after = message.substr(prefix.size());
-            Value found = find(after, global_env);
-            if(!found.get()) throw;
-            param_env = extend(after, found, param_env);
-        }
-    }
+    return clos_ptr->e->eval(param_env);
 
 }
 
 Value Define::eval(Assoc &env) {
     checkName(var);
-    env = extend(var, Value(nullptr), env);
-    Value v = e->eval(env);
-    modify(var, v, env);
+    //global variables should be put at tail and have only one version
+    if(env.get() == nullptr){//empty
+        env = extend(var, Value(nullptr), env);
+        Value value = e->eval(env);
+        modify(var, value, env);
+        return VoidV();
+    }
+    for (auto i = env; i.get() != nullptr; i = i->next) {
+        if (var == i->x) {
+            i->v = e->eval(env);
+            return VoidV();
+        }
+        if((i->next).get() == nullptr){
+            Assoc na = Assoc(nullptr);
+            i->next = Assoc(new AssocList(var, Value(nullptr), na));
+            Value value = e->eval(env);
+            i->next->v = value;
+            return VoidV();
+        }
+    }
     return VoidV();
 }
 

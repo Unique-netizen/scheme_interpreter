@@ -44,9 +44,10 @@ bool isExplicitVoidCall(Expr expr) {
     }
     return false;
 }
-Assoc global_env = empty();
+
 void REPL(){
     // read - evaluation - print loop
+    Assoc global_env = empty();
     while (1){
         #ifndef ONLINE_JUDGE
             std::cout << "scm> ";
