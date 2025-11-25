@@ -864,7 +864,6 @@ Value Apply::eval(Assoc &e) {
     if (args.size() != clos_ptr->parameters.size()) throw RuntimeError("Wrong number of arguments");
     
     //TO COMPLETE THE PARAMETERS' ENVIRONMENT LOGIC
-    //give parameters value, extend to closure env
     Assoc param_env = clos_ptr->env;
     for (int i = 0; i < args.size(); i++){
         param_env = extend(clos_ptr->parameters[i], args[i], param_env);
@@ -873,32 +872,31 @@ Value Apply::eval(Assoc &e) {
     try{
         return clos_ptr->e->eval(param_env);
     }catch(const RuntimeError& error){
-        if(auto p_rator = dynamic_cast<Var*>(rator.get())){
-        Value v_rator = find(p_rator->x, global_env);
-        if(v_rator.get() != nullptr){
-        std::string message = error.message();
-        int pos = message.find(':');
+        auto p_rator = dynamic_cast<Var*>(rator.get());
+        if(p_rator){
+            Value rator_found = find(p_rator->x, global_env);
+            if(rator_found.get() != nullptr){
+                std::string message = error.message();
+                int pos = message.find(':');
         if(pos != std::string::npos){
             std::string before = message.substr(0, pos);
             std::string after = message.substr(pos+1);
             if(before == "Undefined variable"){
                 Value found = find(after, global_env);
                 auto v_found = found.get();
-                auto rator_ptr = dynamic_cast<Var*>(rator.get());
-                if(rator_ptr && v_found){
-                    Assoc new_env = extend(after, found, clos_ptr->env);
-                    Value new_binding = ProcedureV(clos_ptr->parameters, clos_ptr->e, new_env);
-                    modify(rator_ptr->x, new_binding, global_env);
-                    Assoc param_env = new_env;
+                if(v_found != nullptr){
+                    Assoc new_closer_env = extend(after, v_found, clos_ptr->env);
+                    modify(p_rator->x, ProcedureV(clos_ptr->parameters, clos_ptr->e, new_closer_env), global_env);
+                    param_env = new_closer_env;
                     for (int i = 0; i < args.size(); i++){
                         param_env = extend(clos_ptr->parameters[i], args[i], param_env);
                     }
                     return clos_ptr->e->eval(param_env);
                 }
             }
+        }                
+            }
         }
-    }
-    }
         throw;
     }
 }
