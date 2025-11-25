@@ -864,6 +864,13 @@ Value Apply::eval(Assoc &e) {
     if (args.size() != clos_ptr->parameters.size()) throw RuntimeError("Wrong number of arguments");
     
     //TO COMPLETE THE PARAMETERS' ENVIRONMENT LOGIC
+    for (auto i = clos_ptr->env; i.get() != nullptr; i = i->next) {
+        Value v = find(i->x, global_env);
+        if(v.get() != nullptr){
+            modify(i->x, v, clos_ptr->env);
+        }
+    }
+
     Assoc param_env = clos_ptr->env;
     for (int i = 0; i < args.size(); i++){
         param_env = extend(clos_ptr->parameters[i], args[i], param_env);
