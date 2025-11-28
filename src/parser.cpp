@@ -491,7 +491,6 @@ Expr List::parse(Assoc &env) {
 
     //default: use Apply to be an expression
     //TO COMPLETE THE PARSER LOGIC
-    //symbol, but not in env
     Expr rator = stxs[0]->parse(env);
     vector<Expr> rand;
     for (int i = 1; i < stxs.size(); i++){
